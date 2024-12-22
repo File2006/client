@@ -3,7 +3,7 @@ import App from './components/ExpressTest.vue';       // Import the root compone
 import axios from 'axios';
 
 // Set up a base URL for Axios to point to your backend API
-axios.defaults.baseURL = 'http://localhost:3000';
+axios.defaults.baseURL = 'https://omeetly-c552ec79ca41.herokuapp.com';
 
 // Example of making a GET request to fetch data from the backend
 axios.get('/')
