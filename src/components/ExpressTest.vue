@@ -3,7 +3,7 @@ import LocalWebcam from './WebCam.vue';
 </script>
 <template>
     <div class="top-bar">
-      <img class ="icon" src="./icons/omeety_text_final.png" alt="Omeetly_logo">
+      <img class ="icon" src="./icons/omeetly_text_final.png" alt="Omeetly_logo">
     </div>
      <local-webcam></local-webcam>
  </template>
