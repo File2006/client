@@ -14,4 +14,5 @@ axios.get('/')
         console.error('There was an error!', error);
     });
 
-createApp(App).mount('#app');
+const app = createApp(App);
+app.mount('#app');

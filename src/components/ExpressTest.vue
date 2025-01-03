@@ -1,34 +1,33 @@
-<template>
-  <div id="app">
-    <h1>Data from Express API:</h1>
-    <div>{{ homePageContent.message }}</div>
-  </div>
-</template>
-
-<script>
-import axios from 'axios';
-
-export default {
-  name: 'App',
-  data() {
-    return {
-      homePageContent: {},  // To store the home page HTML content
-    };
-  },
-  mounted() {
-    // Fetch the home page HTML content
-    axios.get('/')  // Fetch the home page route
-        .then(response => {
-          // Assuming the response is HTML, set it as innerHTML
-          this.homePageContent = response.data;
-        })
-        .catch(error => {
-          console.error('Error fetching home page:', error);
-        });
-  },
-};
+<script setup>
+import LocalWebcam from './WebCam.vue';
 </script>
-
-<style>
-/* Add any styling you need */
-</style>
+<template>
+    <div class="top-bar">
+      <img class ="icon" src="./icons/omeety_text_final.png" alt="Omeetly_logo">
+    </div>
+     <local-webcam></local-webcam>
+ </template>
+ <style>
+ body{
+   margin: 0;
+ }
+ .top-bar{
+   background-color: #009fe3;
+   grid-area: header;
+   text-align: center;
+ }
+ .icon{
+   width: 300px;
+   padding-top: 10px;
+ }
+ #app{
+   display: grid;
+   grid-template-rows: auto 1fr;
+   grid-template-columns: 1fr 1fr;
+   grid-template-areas:
+         "header header"
+         "video1 video2"
+         "buttons chat";
+   height: 100%;
+ }
+ </style>
