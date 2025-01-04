@@ -39,6 +39,16 @@ peerConnection.onicecandidate = (event) => {
   }
 };
 
+async function createOffer() {
+  try {
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    signalingServer.send(JSON.stringify({ offer: peerConnection.localDescription }));
+  } catch (error) {
+    console.error("Error creating offer:", error);
+  }
+}
+
 onMounted (async () => {
   const localStream = await getLocalStream();
   localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
@@ -47,6 +57,7 @@ onMounted (async () => {
     const [remoteStream] = event.streams;
     remoteVideo.value.srcObject = remoteStream.value;
   }
+  await createOffer();
 });
 </script>
 
