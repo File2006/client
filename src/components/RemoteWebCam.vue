@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted} from "vue";
 import {getLocalStream} from "@/components/localStream.js";
-const signalingServer = new WebSocket('ws://localhost:3000');
+const signalingServer = new WebSocket('wss://omeetly-c552ec79ca41.herokuapp.com');
 
 signalingServer.onopen = () => {
   console.log('Connected to signaling server');
@@ -9,7 +9,7 @@ signalingServer.onopen = () => {
 
 signalingServer.onmessage = (message) => {
 
-  console.log('Received client message:', message);;
+  console.log('Received client message:', message);
   const data = message;
   if (data.offer) {
     peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
