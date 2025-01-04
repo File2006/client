@@ -1,0 +1,23 @@
+body{
+    margin: 0;
+}
+.top-bar{
+    background-color: #009fe3;
+    grid-area: header;
+    text-align: center;
+}
+.icon{
+    width: 300px;
+    padding-top: 10px;
+}
+#app{
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+         "header header"
+         "video1 video2"
+         "buttons chat";
+    height: 100%;
+}
+
