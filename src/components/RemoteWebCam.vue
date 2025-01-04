@@ -56,7 +56,7 @@ onMounted (async () => {
 
   peerConnection.ontrack = event => {
     const [remoteStream] = event.streams;
-    remoteVideo.value.srcObject = remoteStream.value;
+    remoteVideo.value.srcObject = remoteStream;
   }
   await createOffer();
 });
