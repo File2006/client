@@ -8,7 +8,10 @@ signalingServer.onopen = () => {
 };
 
 signalingServer.onmessage = (message) => {
-  const data = JSON.parse(message);
+
+  const messageString = message instanceof Buffer ? message.toString() : message;
+  console.log('Received client message:', messageString);
+  const data = JSON.parse(messageString);
 
   if (data.offer) {
     peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
