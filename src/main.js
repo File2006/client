@@ -1,7 +1,7 @@
 import { createApp } from 'vue';  // Correct way to import Vue 3
-import App from './components/ExpressTest.vue';       // Import the root component
+import App from './components/App.vue';       // Import the root component
 import axios from 'axios';
 
-axios.defaults.baseURL = 'wss://omeetly-c552ec79ca41.herokuapp.com';
+axios.defaults.baseURL = 'http://localhost:9000';
 const app = createApp(App);
 app.mount('#app');
