@@ -6,8 +6,7 @@ async function fetchPeerIDs() {
     const response = await fetch('http://localhost:9000/api/getPeers');
     const data = await response.json();
     console.log('Received peer IDs from backend:', data);
-    const peerIDs = data.idList;
-    return peerIDs;
+    return data.idList;
   } catch (error) {
     console.error('Error fetching peer IDs:', error);
     return [];
