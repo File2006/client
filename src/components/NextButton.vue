@@ -1,9 +1,35 @@
-<script setup>
 
+<script setup>
+import { peerConnect, generateID, localStream} from './peerConnect';
+async function fetchPeerIDs() {
+  try {
+    const response = await fetch('http://localhost:9000/api/getPeers');
+    const data = await response.json();
+    console.log('Received peer IDs from backend:', data);
+    const peerIDs = data.idList;
+    return peerIDs;
+  } catch (error) {
+    console.error('Error fetching peer IDs:', error);
+    return [];
+  }
+}
+async function handlePeerConnection() {
+  try {
+    const peerIDs = await fetchPeerIDs();
+    const destID = await generateID(peerIDs);
+    if (destID) {
+      await peerConnect(destID, localStream);
+    } else {
+      console.warn('No valid peer ID available for connection.');
+    }
+  } catch (error) {
+    console.error('Error during peer connection:', error);
+  }
+}
 </script>
 
 <template>
-<input type="button" class="next-button" value="Next" />
+<input type="button" @click="handlePeerConnection()" class="next-button" value="Next" />
 </template>
 
 <style scoped>
