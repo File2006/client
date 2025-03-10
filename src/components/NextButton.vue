@@ -1,6 +1,6 @@
 
 <script setup>
-import { peerConnect, generateID, localStream} from './peerConnect';
+import { peerConnect, generateID, localStream, activeCall, sendPeerIDToServer, callerID} from './peerConnect';
 async function fetchPeerIDs() {
   try {
     const response = await fetch('http://localhost:9000/api/getPeers');
@@ -14,9 +14,13 @@ async function fetchPeerIDs() {
 }
 async function handlePeerConnection() {
   try {
+    if (activeCall) {
+      await sendPeerIDToServer(callerID.value, true)
+    }
     const peerIDs = await fetchPeerIDs();
     const destID = await generateID(peerIDs);
     if (destID) {
+      console.log(localStream);
       await peerConnect(destID, localStream);
     } else {
       console.warn('No valid peer ID available for connection.');

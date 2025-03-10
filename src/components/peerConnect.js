@@ -1,18 +1,30 @@
 import {Peer} from "https://esm.sh/peerjs@1.5.4?bundle-deps";
 import {ref} from "vue";
 import {getLocalStream} from "@/components/localStream.js";
-const callerID = ref(null);
+export const callerID = ref(null);
+export let activeCall = null;
 export const localStream = await getLocalStream();
-async function sendPeerIDToServer(peerID) {
+export async function sendPeerIDToServer(peerID, action) {
+    let response;
     try {
-        const response = await fetch('http://localhost:9000/api/registerPeer', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ peerID: peerID })
-        });
-
+        if (action === true){
+            response = await fetch('http://localhost:9000/api/registerPeer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ peerID: peerID })
+            });
+        }
+        else{
+            response = await fetch('http://localhost:9000/api/destroyPeer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ peerID: peerID })
+            });
+        }
         const data = await response.json();
         console.log('Server Response:', data);
     } catch (error) {
@@ -52,7 +64,7 @@ const peer = new Peer({
 peer.on('open', async function(id) {
     callerID.value = id;
     console.log('My peer ID is: ' + id);
-    await sendPeerIDToServer(id);
+    await sendPeerIDToServer(id, true);
 });
 
 export async function generateID(idList){
@@ -69,15 +81,44 @@ export async function generateID(idList){
     return id;
 }
 peer.on('call', function(call) {
-    call.answer(localStream)
-    call.on('stream', (stream) => {
+    call.answer(localStream);
+    sendPeerIDToServer(callerID.value, false);
+    activeCall = call;
+    call.on('stream', function(stream) {
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
 });
 
 export async function peerConnect(destID, localStream) {
-    let call = peer.call(destID,localStream);
-    call.on('stream', function(stream) {
+    if (activeCall){
+        console.log("Connected", activeCall);
+        activeCall.close();
+    }
+    console.log(localStream)
+    activeCall = peer.call(destID,localStream);
+    await sendPeerIDToServer(callerID.value, false);
+    activeCall.on('stream', function(stream) {
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
+    activeCall.on('close', async () => {
+        console.log('Call closed');
+        activeCall = null;
+        await sendPeerIDToServer(callerID.value, true);
+        await sendPeerIDToServer(destID, true);
+    });
 }
+window.addEventListener('beforeunload', async () => {
+    if (activeCall){
+        activeCall.close();
+    }
+    if (peer && !peer.destroyed) {
+        peer.destroy();
+    }
+    activeCall.on('close', async () => {
+        console.log('Call closed');
+        activeCall = null;
+    });
+});
+peer.on('close', async function() {
+    await sendPeerIDToServer(callerID.value, false);
+})
