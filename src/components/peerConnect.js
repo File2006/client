@@ -38,29 +38,59 @@ const peer = new Peer({
                 urls: "stun:stun.relay.metered.ca:80",
             },
             {
-                urls: "turn:global.relay.metered.ca:80",
-                username: "b66374b10890b26574f55beb",
-                credential: "e7x9yR2QU1z/42jp",
+                urls: "turn:standard.relay.metered.ca:80",
+                username: "926ecda2bd43330f7c21f249",
+                credential: "p0A4ccpTbwD15t6W",
             },
             {
-                urls: "turn:global.relay.metered.ca:80?transport=tcp",
-                username: "b66374b10890b26574f55beb",
-                credential: "e7x9yR2QU1z/42jp",
+                urls: "turn:standard.relay.metered.ca:80?transport=tcp",
+                username: "926ecda2bd43330f7c21f249",
+                credential: "p0A4ccpTbwD15t6W",
             },
             {
-                urls: "turn:global.relay.metered.ca:443",
-                username: "b66374b10890b26574f55beb",
-                credential: "e7x9yR2QU1z/42jp",
+                urls: "turn:standard.relay.metered.ca:443",
+                username: "926ecda2bd43330f7c21f249",
+                credential: "p0A4ccpTbwD15t6W",
             },
             {
-                urls: "turns:global.relay.metered.ca:443?transport=tcp",
-                username: "b66374b10890b26574f55beb",
-                credential: "e7x9yR2QU1z/42jp",
+                urls: "turns:standard.relay.metered.ca:443?transport=tcp",
+                username: "926ecda2bd43330f7c21f249",
+                credential: "p0A4ccpTbwD15t6W",
             },
         ],
     }
 });
-
+async function fetchPeerIDs() {
+    try {
+        const response = await fetch('http://localhost:9000/api/getPeers');
+        const data = await response.json();
+        console.log('Received peer IDs from backend:', data);
+        return data.idList;
+    } catch (error) {
+        console.error('Error fetching peer IDs:', error);
+        return [];
+    }
+}
+export async function handlePeerConnection() {
+    try {
+        if (activeCall) {
+            activeCall.close();
+            activeCall = null;
+        }
+        await sendPeerIDToServer(callerID.value, false);
+        const peerIDs = await fetchPeerIDs();
+        const destID = await generateID(peerIDs);
+        if (destID) {
+            console.log(localStream);
+            await peerConnect(destID, localStream);
+        } else {
+            console.warn('No valid peer ID available for connection.');
+            await sendPeerIDToServer(callerID.value, true);
+        }
+    } catch (error) {
+        console.error('Error during peer connection:', error);
+    }
+}
 peer.on('open', async function(id) {
     callerID.value = id;
     console.log('My peer ID is: ' + id);
@@ -69,7 +99,7 @@ peer.on('open', async function(id) {
 
 export async function generateID(idList){
     console.log(idList);
-    if (idList.length <= 1) {
+    if (idList.length < 1) {
         console.warn('No other peers available to connect to.');
         return null;
     }
@@ -81,22 +111,14 @@ export async function generateID(idList){
     return id;
 }
 peer.on('call', function(call) {
-    call.answer(localStream);
-    sendPeerIDToServer(callerID.value, false);
-    activeCall = call;
-    call.on('stream', function(stream) {
-        window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
-    });
-});
-
-export async function peerConnect(destID, localStream) {
-    if (activeCall){
-        console.log("Connected", activeCall);
-        activeCall.close();
+    if (activeCall) {
+        console.log("Already in a call, rejecting new one.");
+        call.close()
+        return;
     }
-    console.log(localStream)
-    activeCall = peer.call(destID,localStream);
-    await sendPeerIDToServer(callerID.value, false);
+    call.answer(localStream);
+    activeCall = call;
+    sendPeerIDToServer(callerID.value, false);
     activeCall.on('stream', function(stream) {
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
@@ -104,9 +126,40 @@ export async function peerConnect(destID, localStream) {
         console.log('Call closed');
         activeCall = null;
         await sendPeerIDToServer(callerID.value, true);
-        await sendPeerIDToServer(destID, true);
+        if (!stopRequested){
+            await handlePeerConnection()
+        }
+    });
+});
+let stopRequested = false;
+
+export async function stopConnection() {
+    stopRequested = true;
+    if (activeCall) {
+        activeCall.close();
+    }
+    await sendPeerIDToServer(callerID.value, true);
+    activeCall = null;
+}
+
+export async function peerConnect(destID, localStream) {
+    console.log(localStream)
+    activeCall = peer.call(destID,localStream);
+    activeCall.on('stream', function(stream) {
+        window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
+    });
+    activeCall.on('close', async () => {
+        console.log('Call closed');
+        activeCall = null;
+        await sendPeerIDToServer(callerID.value, true);
+        if (!stopRequested) {
+            await handlePeerConnection();
+        } else {
+            stopRequested = false; // reset for future calls
+        }
     });
 }
+
 window.addEventListener('beforeunload', async () => {
     if (activeCall){
         activeCall.close();

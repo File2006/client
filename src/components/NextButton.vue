@@ -1,36 +1,7 @@
 
 <script setup>
-import { peerConnect, generateID, localStream, activeCall, sendPeerIDToServer, callerID} from './peerConnect';
-async function fetchPeerIDs() {
-  try {
-    const response = await fetch('http://localhost:9000/api/getPeers');
-    const data = await response.json();
-    console.log('Received peer IDs from backend:', data);
-    return data.idList;
-  } catch (error) {
-    console.error('Error fetching peer IDs:', error);
-    return [];
-  }
-}
-async function handlePeerConnection() {
-  try {
-    if (activeCall) {
-      await sendPeerIDToServer(callerID.value, true)
-    }
-    const peerIDs = await fetchPeerIDs();
-    const destID = await generateID(peerIDs);
-    if (destID) {
-      console.log(localStream);
-      await peerConnect(destID, localStream);
-    } else {
-      console.warn('No valid peer ID available for connection.');
-    }
-  } catch (error) {
-    console.error('Error during peer connection:', error);
-  }
-}
+import {handlePeerConnection} from "@/components/peerConnect.js";
 </script>
-
 <template>
 <input type="button" @click="handlePeerConnection()" class="next-button" value="Next" />
 </template>

@@ -1,9 +1,10 @@
 <script setup>
 
+import {stopConnection} from "@/components/peerConnect.js";
 </script>
 
 <template>
-<input type="button" class="stop-button" value="Stop" />
+<input type="button" @click="stopConnection" class="stop-button" value="Stop" />
 </template>
 
 <style scoped>

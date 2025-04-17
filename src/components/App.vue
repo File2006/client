@@ -3,8 +3,6 @@ import LocalWebCam from './LocalWebCam.vue';
 import RemoteWebCam from "./RemoteWebCam.vue";
 import NextButton from "@/components/NextButton.vue";
 import StopButton from "@/components/StopButton.vue";
-import {ref} from "vue";
-const responseMessage = ref(null);
 </script>
 <template>
     <div class="top-bar">
