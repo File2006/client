@@ -44,16 +44,21 @@ html,body{
             "video2"
             "buttons"
             "slider";
+        height: 100vh;
+        overflow-y: auto;
     }
-
     .buttons-div {
         grid-template-columns: 1fr;
     }
-
-    .icon {
-        width: 60%;
+    video {
+        width: 100%;  /* Make videos full width */
+        height: 50vh; /* Make each video take up half the screen height */
+        object-fit: cover; /* Ensure videos cover the area and maintain aspect ratio */
     }
+    .icon {
+        display:none
 
+    }
     .next-button, .stop-button {
         font-size: 1.2rem;
     }

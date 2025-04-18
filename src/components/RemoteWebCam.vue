@@ -21,7 +21,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <video ref="remoteVideo" autoplay></video>
+  <video ref="remoteVideo" autoplay playsinline></video>
 </template>
 
 <style scoped>

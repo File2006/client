@@ -44,7 +44,6 @@ async function sendPeerIDToServer(peerID, role, action) {
         longitude = position.coords.longitude;
     } catch (error) {
         console.error("Geolocation error:", error);
-        // Optional: set default values or abort
     }
     try {
         if (action === true){
