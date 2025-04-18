@@ -3,7 +3,18 @@ import {ref} from "vue";
 import {getLocalStream} from "@/components/localStream.js";
 export const callerID = ref(null);
 export let activeCall = null;
-export const localStream = await getLocalStream();
+export let localStream = null;
+export async function initLocalStream() {
+    if (!localStream) {
+        try {
+            localStream = await getLocalStream();
+            console.log("Local stream initialized", localStream);
+        } catch (err) {
+            console.error("Failed to get local stream:", err);
+        }
+    }
+}
+await initLocalStream();
 export async function sendPeerIDToServer(peerID, role, action) {
     let response;
     try {
