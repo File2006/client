@@ -127,14 +127,14 @@ peer.on('open', async function(id) {
     callerID.value = id;
     localStorage.setItem('peerID', id);
     console.log('My peer ID is: ' + id);
-    await sendPeerIDToServer(id, "idle", true);
-});
-
-async function generateID(peers){
     navigator.geolocation.getCurrentPosition((position) => {
         latitude = position.coords.latitude;
         longitude = position.coords.longitude;
     });
+    await sendPeerIDToServer(id, "idle", true);
+});
+
+async function generateID(peers){
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
     console.log(targetDistance)
@@ -166,14 +166,10 @@ peer.on('call', function(call) {
         call.close()
         return;
     }
-    navigator.geolocation.getCurrentPosition((position) => {
-        latitude = position.coords.latitude;
-        longitude = position.coords.longitude;
-    });
     console.log("Moje vzdálenost:")
     console.log(latitude,longitude);
     console.log("Jeho vzdálenost:")
-    console.log(peer.latitude, peer.longitude);
+    console.log(call.peer.latitude, call.peer.longitude);
     let distance;
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
