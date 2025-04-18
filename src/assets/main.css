@@ -55,19 +55,19 @@ html,body{
         grid-template-columns: 1fr;
     }
     .next-button{
-        padding: 4vw !important;
-        font-size: 5vw !important;
+        padding: 3vw !important;
+        font-size: 4vw !important;
     }
     .stop-button{
-        padding: 4vw !important;
-        font-size: 5vw !important;
+        padding: 3vw !important;
+        font-size: 4vw !important;
     }
     .distance-label{
-        font-size: 5vw !important;
+        font-size: 3vw !important;
     }
     .slider::-webkit-slider-thumb{
-        height: 12vw !important;
-        width: 3vw !important;
+        height: 10vw !important;
+        width: 2.5vw !important;
     }
     video {
         height: 50vh !important;
