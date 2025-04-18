@@ -5,6 +5,8 @@ import { useComponentRefsStore } from './store.js'
 let callerID = ref(null);
 let activeCall = null;
 let localStream = null;
+let latitude = null;
+let longitude = null;
 
 async function initLocalStream() {
     if (!localStream) {
@@ -31,6 +33,10 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 async function sendPeerIDToServer(peerID, role, action) {
     let response;
+    navigator.geolocation.getCurrentPosition((position) => {
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+    });
     try {
         if (action === true){
             response = await fetch('https://omeetlyserver.onrender.com/api/registerPeer', {
@@ -125,10 +131,6 @@ peer.on('open', async function(id) {
     callerID.value = id;
     localStorage.setItem('peerID', id);
     console.log('My peer ID is: ' + id);
-    navigator.geolocation.getCurrentPosition((position) => {
-        window.latitude = position.coords.latitude;
-        window.longitude = position.coords.longitude;
-    });
     await sendPeerIDToServer(id, "idle", true);
 });
 
