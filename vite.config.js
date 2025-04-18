@@ -17,7 +17,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'https://omeetly-c552ec79ca41.herokuapp.com',  // Proxy requests to your backend server
+      '/api': 'https://omeetlyserver.onrender.com',  // Proxy requests to your backend server
     },
   },
 })

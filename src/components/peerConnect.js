@@ -8,7 +8,7 @@ export async function sendPeerIDToServer(peerID, role, action) {
     let response;
     try {
         if (action === true){
-            response = await fetch('http://localhost:9000/api/registerPeer', {
+            response = await fetch('https://omeetlyserver.onrender.com/api/registerPeer', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ export async function sendPeerIDToServer(peerID, role, action) {
             });
         }
         else{
-            response = await fetch('http://localhost:9000/api/destroyPeer', {
+            response = await fetch('https://omeetlyserver.onrender.com/api/destroyPeer', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ const peer = new Peer({
 });
 async function fetchPeerIDs() {
     try {
-        const response = await fetch('http://localhost:9000/api/getPeers');
+        const response = await fetch('https://omeetlyserver.onrender.com/api/getPeers');
         const data = await response.json();
         console.log('Received peer IDs from backend:', data);
         return data.peers;
