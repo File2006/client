@@ -22,7 +22,7 @@ html,body{
     display:grid;
     grid-area: buttons;
     width: 100%;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
 }
 #app{
     display: grid;
@@ -42,7 +42,8 @@ html,body{
             "header"
             "video1"
             "video2"
-            "buttons";
+            "buttons"
+            "slider";
     }
 
     .buttons-div {

@@ -1,4 +1,3 @@
-
 <script setup>
 import {handlePeerConnection} from "@/components/peerConnect.js";
 </script>
@@ -10,7 +9,7 @@ import {handlePeerConnection} from "@/components/peerConnect.js";
 .next-button {
   background: linear-gradient(to bottom, #6bc38e, #3a915c);
   color: white;
-  font-size: 1.6rem;
+  font-size: 2.5rem;
   font-weight: bold;
   border: none;
   cursor: pointer;

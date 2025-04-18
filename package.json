@@ -12,7 +12,9 @@
     "axios": "^1.7.8",
     "cors": "^2.8.5",
     "peerjs": "^1.5.4",
-    "vue": "^3.5.12"
+    "pinia": "^3.0.2",
+    "vue": "^3.5.12",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",

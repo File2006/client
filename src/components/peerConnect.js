@@ -1,10 +1,14 @@
 import {Peer} from "https://esm.sh/peerjs@1.5.4?bundle-deps";
-import {ref} from "vue";
 import {getLocalStream} from "@/components/localStream.js";
-export const callerID = ref(null);
-export let activeCall = null;
-export let localStream = null;
-export async function initLocalStream() {
+import {ref} from "vue";
+import { useComponentRefsStore } from './store.js'
+let callerID = ref(null);
+let activeCall = null;
+let localStream = null;
+let latitude = null
+let longitude = null
+
+async function initLocalStream() {
     if (!localStream) {
         try {
             localStream = await getLocalStream();
@@ -14,7 +18,24 @@ export async function initLocalStream() {
         }
     }
 }
-export async function sendPeerIDToServer(peerID, role, action) {
+navigator.geolocation.getCurrentPosition((position) => {
+    latitude = position.coords.latitude;
+    longitude = position.coords.longitude;
+});
+
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+async function sendPeerIDToServer(peerID, role, action) {
     let response;
     try {
         if (action === true){
@@ -23,7 +44,7 @@ export async function sendPeerIDToServer(peerID, role, action) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ peerID,role})
+                body: JSON.stringify({ peerID, longitude, latitude, role})
             });
         }
         else{
@@ -50,23 +71,23 @@ const peer = new Peer(savedPeerID || undefined, {
             },
             {
                 urls: "turn:standard.relay.metered.ca:80",
-                username: "926ecda2bd43330f7c21f249",
-                credential: "p0A4ccpTbwD15t6W",
+                username: "895ef7a59277ee4b13e876ff",
+                credential: "hFWn4sRWym295EBg",
             },
             {
                 urls: "turn:standard.relay.metered.ca:80?transport=tcp",
-                username: "926ecda2bd43330f7c21f249",
-                credential: "p0A4ccpTbwD15t6W",
+                username: "895ef7a59277ee4b13e876ff",
+                credential: "hFWn4sRWym295EBg",
             },
             {
                 urls: "turn:standard.relay.metered.ca:443",
-                username: "926ecda2bd43330f7c21f249",
-                credential: "p0A4ccpTbwD15t6W",
+                username: "895ef7a59277ee4b13e876ff",
+                credential: "hFWn4sRWym295EBg",
             },
             {
                 urls: "turns:standard.relay.metered.ca:443?transport=tcp",
-                username: "926ecda2bd43330f7c21f249",
-                credential: "p0A4ccpTbwD15t6W",
+                username: "895ef7a59277ee4b13e876ff",
+                credential: "hFWn4sRWym295EBg",
             },
         ],
     }
@@ -113,28 +134,44 @@ peer.on('open', async function(id) {
     await sendPeerIDToServer(id, "idle", true);
 });
 
-export async function generateID(peers){
+async function generateID(peers){
+    const store = useComponentRefsStore()
+    const targetDistance = store.targetDistance
+    console.log(targetDistance)
     console.log(peers);
     if (peers.length < 1) {
         console.warn('No other peers available to connect to.');
         return null;
     }
     let candidate;
+    let distance;
     let attempts = 0;
     do {
         candidate = peers[Math.floor(Math.random() * peers.length)];
+        distance = getDistance(latitude,longitude,candidate.latitude,candidate.longitude);
+        console.log(distance)
         attempts++;
         if (attempts > 10) {
             console.warn("Couldn't find a suitable peer after 10 tries.");
             return null;
         }
-    } while (candidate.peerID === callerID.value || candidate.role === "idle");
+    } while (candidate.peerID === callerID.value || candidate.role === "idle" || distance > targetDistance);
     console.log(candidate.peerID);
     return candidate.peerID;
 }
 peer.on('call', function(call) {
     if (activeCall) {
         console.log("Already in a call, rejecting new one.");
+        call.close()
+        return;
+    }
+    let distance;
+    const store = useComponentRefsStore()
+    const targetDistance = store.targetDistance
+    distance = getDistance(latitude,longitude,call.peer.latitude,call.peer.longitude);
+    console.log(distance);
+    if (distance>targetDistance) {
+        console.log("Refusing call, too far.")
         call.close()
         return;
     }
@@ -167,7 +204,7 @@ export async function stopConnection() {
     activeCall = null;
 }
 
-export async function peerConnect(destID, localStream) {
+async function peerConnect(destID, localStream) {
     console.log(localStream)
     activeCall = peer.call(destID,localStream);
     activeCall.on('stream', function(stream) {
@@ -181,7 +218,7 @@ export async function peerConnect(destID, localStream) {
             await handlePeerConnection();
         } else {
             await sendPeerIDToServer(callerID.value, "idle", true);
-            stopRequested = false; // reset for future calls
+            stopRequested = false;
         }
     });
 }
