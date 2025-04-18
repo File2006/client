@@ -39,7 +39,6 @@ html,body{
     #app {
         grid-template-columns: 1fr;
         grid-template-areas:
-            "header"
             "video1"
             "video2"
             "buttons"
@@ -51,16 +50,10 @@ html,body{
         grid-template-columns: 1fr;
     }
     video {
-        width: 100%;  /* Make videos full width */
-        height: 50vh; /* Make each video take up half the screen height */
-        object-fit: cover; /* Ensure videos cover the area and maintain aspect ratio */
+        height: 50vh !important;
     }
     .icon {
         display:none
-
-    }
-    .next-button, .stop-button {
-        font-size: 1.2rem;
     }
 }
 

@@ -39,6 +39,7 @@ const store = useComponentRefsStore()
   border-radius: 1rem;
   outline: none;
   transition: background 0.3s;
+  margin: 0;
 }
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
