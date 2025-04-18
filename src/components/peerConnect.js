@@ -149,6 +149,7 @@ async function generateID(peers){
     do {
         candidate = peers[Math.floor(Math.random() * peers.length)];
         distance = getDistance(latitude,longitude,candidate.latitude,candidate.longitude);
+        console.log(candidate.latitude, candidate.longitude);
         console.log(distance)
         attempts++;
         if (attempts > 10) {
