@@ -3,7 +3,7 @@ import {ref} from "vue";
 import {getLocalStream} from "@/components/localStream.js";
 export const callerID = ref(null);
 export let activeCall = null;
-export const localStream = getLocalStream();
+export const localStream = await getLocalStream();
 export async function sendPeerIDToServer(peerID, role, action) {
     let response;
     try {
