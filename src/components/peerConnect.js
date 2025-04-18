@@ -4,7 +4,7 @@ import {getLocalStream} from "@/components/localStream.js";
 export const callerID = ref(null);
 export let activeCall = null;
 export const localStream = await getLocalStream();
-export async function sendPeerIDToServer(peerID, action) {
+export async function sendPeerIDToServer(peerID, role, action) {
     let response;
     try {
         if (action === true){
@@ -13,7 +13,7 @@ export async function sendPeerIDToServer(peerID, action) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ peerID: peerID })
+                body: JSON.stringify({ peerID,role})
             });
         }
         else{
@@ -22,7 +22,7 @@ export async function sendPeerIDToServer(peerID, action) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ peerID: peerID })
+                body: JSON.stringify({ peerID })
             });
         }
         const data = await response.json();
@@ -65,7 +65,7 @@ async function fetchPeerIDs() {
         const response = await fetch('http://localhost:9000/api/getPeers');
         const data = await response.json();
         console.log('Received peer IDs from backend:', data);
-        return data.idList;
+        return data.peers;
     } catch (error) {
         console.error('Error fetching peer IDs:', error);
         return [];
@@ -77,15 +77,18 @@ export async function handlePeerConnection() {
             activeCall.close();
             activeCall = null;
         }
-        await sendPeerIDToServer(callerID.value, false);
+        await sendPeerIDToServer(callerID.value,"", false);
         const peerIDs = await fetchPeerIDs();
         const destID = await generateID(peerIDs);
         if (destID) {
             console.log(localStream);
+            if (activeCall){
+                return;
+            }
             await peerConnect(destID, localStream);
         } else {
             console.warn('No valid peer ID available for connection.');
-            await sendPeerIDToServer(callerID.value, true);
+            await sendPeerIDToServer(callerID.value,"searching", true);
         }
     } catch (error) {
         console.error('Error during peer connection:', error);
@@ -94,21 +97,27 @@ export async function handlePeerConnection() {
 peer.on('open', async function(id) {
     callerID.value = id;
     console.log('My peer ID is: ' + id);
-    await sendPeerIDToServer(id, true);
+    await sendPeerIDToServer(id, "idle", true);
 });
 
-export async function generateID(idList){
-    console.log(idList);
-    if (idList.length < 1) {
+export async function generateID(peers){
+    console.log(peers);
+    if (peers.length < 1) {
         console.warn('No other peers available to connect to.');
         return null;
     }
-    let id;
+    let candidate;
+    let attempts = 0;
     do {
-        id = idList[Math.floor(Math.random() * idList.length)];
-    } while (id === callerID.value);
-    console.log(id);
-    return id;
+        candidate = peers[Math.floor(Math.random() * peers.length)];
+        attempts++;
+        if (attempts > 10) {
+            console.warn("Couldn't find a suitable peer after 10 tries.");
+            return null;
+        }
+    } while (candidate.peerID === callerID.value || candidate.role === "idle");
+    console.log(candidate.peerID);
+    return candidate.peerID;
 }
 peer.on('call', function(call) {
     if (activeCall) {
@@ -118,16 +127,19 @@ peer.on('call', function(call) {
     }
     call.answer(localStream);
     activeCall = call;
-    sendPeerIDToServer(callerID.value, false);
+    sendPeerIDToServer(callerID.value,"", false);
     activeCall.on('stream', function(stream) {
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
     activeCall.on('close', async () => {
         console.log('Call closed');
         activeCall = null;
-        await sendPeerIDToServer(callerID.value, true);
         if (!stopRequested){
+            await sendPeerIDToServer(callerID.value, "searching", true)
             await handlePeerConnection()
+        }
+        else{
+            await sendPeerIDToServer(callerID.value, "idle", true)
         }
     });
 });
@@ -138,7 +150,7 @@ export async function stopConnection() {
     if (activeCall) {
         activeCall.close();
     }
-    await sendPeerIDToServer(callerID.value, true);
+    await sendPeerIDToServer(callerID.value, "idle", true);
     activeCall = null;
 }
 
@@ -151,10 +163,11 @@ export async function peerConnect(destID, localStream) {
     activeCall.on('close', async () => {
         console.log('Call closed');
         activeCall = null;
-        await sendPeerIDToServer(callerID.value, true);
         if (!stopRequested) {
+            await sendPeerIDToServer(callerID.value, "searching", true);
             await handlePeerConnection();
         } else {
+            await sendPeerIDToServer(callerID.value, "idle", true);
             stopRequested = false; // reset for future calls
         }
     });
@@ -173,5 +186,5 @@ window.addEventListener('beforeunload', async () => {
     });
 });
 peer.on('close', async function() {
-    await sendPeerIDToServer(callerID.value, false);
+    await sendPeerIDToServer(callerID.value, "",false);
 })
