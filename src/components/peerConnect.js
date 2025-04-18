@@ -33,7 +33,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 async function sendPeerIDToServer(peerID, role, action) {
     let response;
-    navigator.geolocation.getCurrentPosition((position) => {
+    await navigator.geolocation.getCurrentPosition((position) => {
         latitude = position.coords.latitude;
         longitude = position.coords.longitude;
     });
