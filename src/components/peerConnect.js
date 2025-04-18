@@ -14,7 +14,6 @@ export async function initLocalStream() {
         }
     }
 }
-await initLocalStream();
 export async function sendPeerIDToServer(peerID, role, action) {
     let response;
     try {
@@ -106,6 +105,7 @@ export async function handlePeerConnection() {
     }
 }
 peer.on('open', async function(id) {
+    await initLocalStream();
     callerID.value = id;
     console.log('My peer ID is: ' + id);
     await sendPeerIDToServer(id, "idle", true);
