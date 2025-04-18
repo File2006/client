@@ -5,7 +5,7 @@ const localVideo = ref(null);
 
 onMounted(async () => {
   try{
-    const localStream = await getLocalStream()
+    const localStream = getLocalStream()
     if (localVideo.value){
       localVideo.value.srcObject = localStream;
     }
