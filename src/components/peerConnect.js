@@ -33,10 +33,19 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 async function sendPeerIDToServer(peerID, role, action) {
     let response;
-    await navigator.geolocation.getCurrentPosition((position) => {
+    const getLocation = () => {
+        return new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+    };
+    try {
+        const position = await getLocation();
         latitude = position.coords.latitude;
         longitude = position.coords.longitude;
-    });
+    } catch (error) {
+        console.error("Geolocation error:", error);
+        // Optional: set default values or abort
+    }
     try {
         if (action === true){
             response = await fetch('https://omeetlyserver.onrender.com/api/registerPeer', {
@@ -160,21 +169,23 @@ async function generateID(peers){
     console.log(candidate.peerID);
     return candidate.peerID;
 }
+
 peer.on('call', function(call) {
     if (activeCall) {
         console.log("Already in a call, rejecting new one.");
         call.close()
         return;
     }
-    console.log("Moje vzdálenost:")
-    console.log(latitude,longitude);
-    console.log("Jeho vzdálenost:")
-    console.log(call.peer.latitude, call.peer.longitude);
+    const remoteLatitude = call.metadata?.latitude;
+    const remoteLongitude = call.metadata?.longitude;
+
+    console.log("My location:", latitude, longitude);
+    console.log("Caller location:", remoteLatitude, remoteLongitude);
     let distance;
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
     console.log(targetDistance)
-    distance = getDistance(latitude,longitude,call.peer.latitude,call.peer.longitude);
+    distance = getDistance(latitude,longitude,remoteLatitude,remoteLongitude);
     console.log(distance);
     if (distance>targetDistance) {
         console.log("Refusing call, too far.")
@@ -212,7 +223,12 @@ export async function stopConnection() {
 
 async function peerConnect(destID, localStream) {
     console.log(localStream)
-    activeCall = peer.call(destID,localStream);
+    activeCall = peer.call(destID, localStream, {
+        metadata: {
+            latitude: latitude,
+            longitude: longitude
+        }
+    });
     activeCall.on('stream', function(stream) {
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
