@@ -152,7 +152,7 @@ async function generateID(peers){
         console.log(candidate.latitude, candidate.longitude);
         console.log(distance)
         attempts++;
-        if (attempts > 10) {
+        if (attempts > 3) {
             console.warn("Couldn't find a suitable peer after 10 tries.");
             return null;
         }
@@ -170,9 +170,14 @@ peer.on('call', function(call) {
         latitude = position.coords.latitude;
         longitude = position.coords.longitude;
     });
+    console.log("Moje vzdálenost:")
+    console.log(latitude,longitude);
+    console.log("Jeho vzdálenost:")
+    console.log(peer.latitude, peer.longitude);
     let distance;
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
+    console.log(targetDistance)
     distance = getDistance(latitude,longitude,call.peer.latitude,call.peer.longitude);
     console.log(distance);
     if (distance>targetDistance) {
