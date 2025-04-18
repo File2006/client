@@ -9,14 +9,14 @@ import {handlePeerConnection} from "@/components/peerConnect.js";
 .next-button {
   background: linear-gradient(to bottom, #6bc38e, #3a915c);
   color: white;
-  font-size: 2.5rem;
+  font-size: 2vw;
   font-weight: bold;
   border: none;
   cursor: pointer;
-  padding: 3rem;
   width: 100%;
-  border-radius: 0.8rem;
+  border-radius: 1vw;
   height: 100%;
+  padding: 0;
   text-align: center;
   transition: background 0.3s ease, transform 0.1s ease;
 }

@@ -5,11 +5,16 @@ html,body{
 }
 .top-bar{
     background-color: #009fe3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     grid-area: header;
     text-align: center;
+    height: 100%;
 }
 .icon{
     width: 20%;
+    object-fit: contain;
     padding-top: 0.6rem;
 }
 .local-web-cam{
@@ -26,7 +31,7 @@ html,body{
 }
 #app{
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: 0.1fr 1fr 0.1fr;
     grid-template-columns: 1fr 1fr;
     grid-template-areas:
          "header header"
@@ -48,6 +53,21 @@ html,body{
     }
     .buttons-div {
         grid-template-columns: 1fr;
+    }
+    .next-button{
+        padding: 4vw !important;
+        font-size: 5vw !important;
+    }
+    .stop-button{
+        padding: 4vw !important;
+        font-size: 5vw !important;
+    }
+    .distance-label{
+        font-size: 5vw !important;
+    }
+    .slider::-webkit-slider-thumb{
+        height: 12vw !important;
+        width: 3vw !important;
     }
     video {
         height: 50vh !important;

@@ -7,6 +7,7 @@ let activeCall = null;
 let localStream = null;
 let latitude = null;
 let longitude = null;
+let stopRequested = false;
 
 async function initLocalStream() {
     if (!localStream) {
@@ -209,7 +210,6 @@ peer.on('call', function(call) {
         }
     });
 });
-let stopRequested = false;
 
 export async function stopConnection() {
     stopRequested = true;

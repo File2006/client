@@ -11,14 +11,14 @@ import {stopConnection} from "@/components/peerConnect.js";
 .stop-button {
   background: linear-gradient(to bottom, #e36b6b, #913a3a);
   color: white;
-  font-size: 2.5rem;
+  font-size: 2vw;
   font-weight: bold;
   border: none;
   cursor: pointer;
-  padding: 3rem;
   width: 100%;
   height: 100%;
-  border-radius: 0.8rem;
+  padding: 0;
+  border-radius: 1vw;
   text-align: center;
   transition: background 0.3s ease, transform 0.1s ease;
 }
