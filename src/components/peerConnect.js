@@ -41,7 +41,8 @@ export async function sendPeerIDToServer(peerID, role, action) {
         console.error('Error sending peer ID:', error);
     }
 }
-const peer = new Peer({
+let savedPeerID = localStorage.getItem('peerID');
+const peer = new Peer(savedPeerID || undefined, {
     config:{
         iceServers: [
             {
@@ -107,6 +108,7 @@ export async function handlePeerConnection() {
 peer.on('open', async function(id) {
     await initLocalStream();
     callerID.value = id;
+    localStorage.setItem('peerID', id);
     console.log('My peer ID is: ' + id);
     await sendPeerIDToServer(id, "idle", true);
 });
