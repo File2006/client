@@ -18,10 +18,6 @@ async function initLocalStream() {
         }
     }
 }
-navigator.geolocation.getCurrentPosition((position) => {
-    latitude = position.coords.latitude;
-    longitude = position.coords.longitude;
-});
 
 function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371; // Earth radius in km
@@ -135,6 +131,10 @@ peer.on('open', async function(id) {
 });
 
 async function generateID(peers){
+    navigator.geolocation.getCurrentPosition((position) => {
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+    });
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
     console.log(targetDistance)
@@ -166,6 +166,10 @@ peer.on('call', function(call) {
         call.close()
         return;
     }
+    navigator.geolocation.getCurrentPosition((position) => {
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+    });
     let distance;
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
