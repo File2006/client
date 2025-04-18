@@ -5,8 +5,6 @@ import { useComponentRefsStore } from './store.js'
 let callerID = ref(null);
 let activeCall = null;
 let localStream = null;
-let latitude = null
-let longitude = null
 
 async function initLocalStream() {
     if (!localStream) {
@@ -128,8 +126,8 @@ peer.on('open', async function(id) {
     localStorage.setItem('peerID', id);
     console.log('My peer ID is: ' + id);
     navigator.geolocation.getCurrentPosition((position) => {
-        latitude = position.coords.latitude;
-        longitude = position.coords.longitude;
+        window.latitude = position.coords.latitude;
+        window.longitude = position.coords.longitude;
     });
     await sendPeerIDToServer(id, "idle", true);
 });
