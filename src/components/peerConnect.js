@@ -8,7 +8,7 @@ let localStream = null;
 let latitude = null;
 let longitude = null;
 let stopRequested = false;
-let rejectcall = false;
+let rejectCall = false;
 
 async function initLocalStream() {
     if (!localStream) {
@@ -119,9 +119,9 @@ export async function handlePeerConnection() {
             activeCall.close();
             activeCall = null;
         }
-        if (rejectcall) {
+        if (rejectCall) {
             await sendPeerIDToServer(callerID.value, "", true);
-            rejectcall = false;
+            rejectCall = false;
         }
         await sendPeerIDToServer(callerID.value,"", false);
         const peerIDs = await fetchPeerIDs();
@@ -170,7 +170,7 @@ async function generateID(peers){
             console.warn("Couldn't find a suitable peer after 10 tries.");
             return null;
         }
-    } while (candidate.peerID === callerID.value || candidate.role === "idle" || distance > targetDistance);
+    } while (candidate.peerID === callerID.value || candidate.role === "idle" || candidate.role === "StopIdle" ||distance > targetDistance);
     console.log(candidate.peerID);
     return candidate.peerID;
 }
@@ -178,7 +178,7 @@ async function generateID(peers){
 peer.on('call', function(call) {
     if (activeCall) {
         console.log("Already in a call, rejecting new one.");
-        rejectcall = true;
+        rejectCall = true;
         activeCall.close()
         return;
     }
@@ -200,8 +200,8 @@ peer.on('call', function(call) {
     }
     call.answer(localStream);
     activeCall = call;
-    sendPeerIDToServer(callerID.value,"", false);
-    activeCall.on('stream', function(stream) {
+    activeCall.on('stream', async function(stream) {
+        await sendPeerIDToServer(callerID.value,"", false);
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
     activeCall.on('close', async () => {
@@ -212,7 +212,7 @@ peer.on('call', function(call) {
             await handlePeerConnection()
         }
         else{
-            await sendPeerIDToServer(callerID.value, "idle", true)
+            await sendPeerIDToServer(callerID.value, "StopIdle", true)
         }
         stopRequested = false;
     });
@@ -223,8 +223,8 @@ export async function stopConnection() {
     if (activeCall) {
         activeCall.close();
     }
-    await sendPeerIDToServer(callerID.value, "idle", true);
-    activeCall = null;
+    await sendPeerIDToServer(callerID.value, "StopIdle", true);
+    stopRequested = false;
 }
 
 async function peerConnect(destID, localStream) {
@@ -252,7 +252,7 @@ async function peerConnect(destID, localStream) {
             await sendPeerIDToServer(callerID.value, "searching", true);
             await handlePeerConnection();
         } else {
-            await sendPeerIDToServer(callerID.value, "idle", true);
+            await sendPeerIDToServer(callerID.value, "StopIdle", true);
             stopRequested = false;
         }
     });
