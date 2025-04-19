@@ -206,7 +206,7 @@ async function generateID(peers){
     return suitablePeers[randomIndex];
 }
 
-peer.on('call', function(call) {
+peer.on('call', async function(call) {
     if (activeCall) {
         console.log("Already in a call, rejecting new one.");
         rejectCall = true;
@@ -217,7 +217,7 @@ peer.on('call', function(call) {
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
     console.log(targetDistance)
-    distance = getDistanceFromServer(callerID.value,call.peer)
+    distance = await getDistanceFromServer(callerID.value,call.peer)
     console.log(distance);
     if (distance>targetDistance) {
         console.log("Refusing call, too far.")
