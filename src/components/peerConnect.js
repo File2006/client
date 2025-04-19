@@ -229,8 +229,11 @@ async function peerConnect(destID, localStream) {
             longitude: longitude
         }
     });
-    console.log(activeCall);
+    let streamTimeout = setTimeout(async () => {
+        console.warn("No stream received — assuming remote peer is unresponsive.");
+    }, 10000);
     activeCall.on('stream', function(stream) {
+        clearTimeout(streamTimeout);
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
     activeCall.on('close', async () => {
@@ -244,16 +247,9 @@ async function peerConnect(destID, localStream) {
             stopRequested = false;
         }
     });
-    activeCall.on('error', async (err) => {
-        console.error("Call failed:", err);
-        activeCall = null;
-        await sendPeerIDToServer(destID, "", false);
-        await sendPeerIDToServer(callerID.value, "searching", true);
-        await handlePeerConnection()
-    });
 }
 
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', (event) => {
     if (activeCall) {
         activeCall.close();
         activeCall = null;
