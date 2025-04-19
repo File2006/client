@@ -97,23 +97,23 @@ const peer = new Peer(savedPeerID || undefined, {
             },
             {
                 urls: "turn:standard.relay.metered.ca:80",
-                username: "895ef7a59277ee4b13e876ff",
-                credential: "hFWn4sRWym295EBg",
+                username: "bbd225f2e3de8a6f79571228",
+                credential: "FgUf6sBZjcY4m4bP",
             },
             {
                 urls: "turn:standard.relay.metered.ca:80?transport=tcp",
-                username: "895ef7a59277ee4b13e876ff",
-                credential: "hFWn4sRWym295EBg",
+                username: "bbd225f2e3de8a6f79571228",
+                credential: "FgUf6sBZjcY4m4bP",
             },
             {
                 urls: "turn:standard.relay.metered.ca:443",
-                username: "895ef7a59277ee4b13e876ff",
-                credential: "hFWn4sRWym295EBg",
+                username: "bbd225f2e3de8a6f79571228",
+                credential: "FgUf6sBZjcY4m4bP",
             },
             {
                 urls: "turns:standard.relay.metered.ca:443?transport=tcp",
-                username: "895ef7a59277ee4b13e876ff",
-                credential: "hFWn4sRWym295EBg",
+                username: "bbd225f2e3de8a6f79571228",
+                credential: "FgUf6sBZjcY4m4bP",
             },
         ],
     }
@@ -203,8 +203,8 @@ peer.on('call', function(call) {
     }
     call.answer(localStream);
     activeCall = call;
-    sendPeerIDToServer(callerID.value,"calling", "change");
-    activeCall.on('stream', function(stream) {
+    activeCall.on('stream', async function(stream) {
+        await sendPeerIDToServer(callerID.value,"calling", "change");
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
     activeCall.on('close', async () => {
