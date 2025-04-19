@@ -229,6 +229,7 @@ async function peerConnect(destID, localStream) {
             longitude: longitude
         }
     });
+    console.log(activeCall);
     activeCall.on('stream', function(stream) {
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
