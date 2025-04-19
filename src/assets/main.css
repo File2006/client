@@ -55,15 +55,15 @@ html,body{
         grid-template-columns: 1fr;
     }
     .next-button{
-        padding: 3vw !important;
-        font-size: 4vw !important;
+        padding: 3.5vw !important;
+        font-size: 4.5vw !important;
     }
     .stop-button{
-        padding: 3vw !important;
-        font-size: 4vw !important;
+        padding: 3.5vw !important;
+        font-size: 4.5vw !important;
     }
     .distance-label{
-        font-size: 3vw !important;
+        font-size: 3.5vw !important;
     }
     .slider::-webkit-slider-thumb{
         height: 10vw !important;
