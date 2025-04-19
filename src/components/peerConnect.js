@@ -208,6 +208,7 @@ peer.on('call', function(call) {
         else{
             await sendPeerIDToServer(callerID.value, "idle", true)
         }
+        stopRequested = false;
     });
 });
 
