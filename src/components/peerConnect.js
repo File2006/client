@@ -2,6 +2,7 @@ import {Peer} from "https://esm.sh/peerjs@1.5.4?bundle-deps";
 import {getLocalStream} from "@/components/localStream.js";
 import {ref} from "vue";
 import { useComponentRefsStore } from './store.js'
+import {send} from "vite";
 let callerID = ref(null);
 let activeCall = null;
 let localStream = null;
@@ -231,7 +232,9 @@ async function peerConnect(destID, localStream) {
     });
     let streamTimeout = setTimeout(async () => {
         console.warn("No stream received — assuming remote peer is unresponsive.");
-    }, 10000);
+        await sendPeerIDToServer(destID, "", false);
+        activeCall.close();
+    }, 2000);
     activeCall.on('stream', function(stream) {
         clearTimeout(streamTimeout);
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
