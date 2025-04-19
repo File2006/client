@@ -126,7 +126,12 @@ export async function handlePeerConnection() {
             if (activeCall){
                 return;
             }
-            await peerConnect(destID, localStream);
+            try{
+                await peerConnect(destID, localStream);
+            } catch (error) {
+                console.error('Error connecting peer connection:', error);
+                await sendPeerIDToServer(destID,"",false);
+            }
         } else {
             console.warn('No valid peer ID available for connection.');
             await sendPeerIDToServer(callerID.value,"searching", true);
@@ -246,7 +251,6 @@ async function peerConnect(destID, localStream) {
 }
 
 window.addEventListener('beforeunload', (event) => {
-    // Synchronous cleanup to maximize reliability
     if (activeCall) {
         activeCall.close();
         activeCall = null;
@@ -254,7 +258,6 @@ window.addEventListener('beforeunload', (event) => {
     if (peer && !peer.destroyed) {
         peer.destroy();
     }
-    // Send a synchronous beacon for peer ID removal
     if (callerID.value) {
         navigator.sendBeacon('https://omeetlyserver.onrender.com/api/destroyPeer', JSON.stringify({ peerID: callerID.value }));
         localStorage.removeItem('peerID');
