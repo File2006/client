@@ -173,7 +173,7 @@ async function generateID(peers){
 peer.on('call', function(call) {
     if (activeCall) {
         console.log("Already in a call, rejecting new one.");
-        call.close()
+        activeCall.close()
         return;
     }
     const remoteLatitude = call.metadata?.latitude;
