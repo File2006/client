@@ -244,18 +244,22 @@ async function peerConnect(destID, localStream) {
     });
 }
 
-window.addEventListener('beforeunload', async () => {
-    if (activeCall){
+window.addEventListener('beforeunload', (event) => {
+    // Synchronous cleanup to maximize reliability
+    if (activeCall) {
         activeCall.close();
+        activeCall = null;
     }
     if (peer && !peer.destroyed) {
         peer.destroy();
     }
-    activeCall.on('close', async () => {
-        console.log('Call closed');
-        activeCall = null;
-    });
+    // Send a synchronous beacon for peer ID removal
+    if (callerID.value) {
+        navigator.sendBeacon('https://omeetlyserver.onrender.com/api/destroyPeer', JSON.stringify({ peerID: callerID.value }));
+        localStorage.removeItem('peerID');
+    }
 });
-peer.on('close', async function() {
-    await sendPeerIDToServer(callerID.value, "",false);
-})
+peer.on('close', () => {
+    console.log('Peer connection closed');
+    callerID.value = null;
+});
