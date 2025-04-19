@@ -55,7 +55,7 @@ async function sendPeerIDToServer(peerID, role, action) {
                 body: JSON.stringify({ peerID, role})
             });
         }
-        else{
+        if (action === "delete"){
             response = await fetch('https://omeetlyserver.onrender.com/api/destroyPeer', {
                 method: 'POST',
                 headers: {
@@ -216,7 +216,7 @@ async function closeCall(){
     console.log('Call closed');
     activeCall = null;
     if (stopRequested){
-        await sendPeerIDToServer(callerID.value, "stopIdle", "add")
+        await sendPeerIDToServer(callerID.value, "stopIdle", "change")
         stopRequested = false;
     }
     if (rejectCall){
@@ -235,7 +235,7 @@ export async function stopConnection() {
     if (activeCall) {
         activeCall.close();
     }
-    await sendPeerIDToServer(callerID.value, "stopIdle", "add");
+    await sendPeerIDToServer(callerID.value, "stopIdle", "change");
     stopRequested = false;
 }
 
