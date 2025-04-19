@@ -62,7 +62,7 @@ async function sendPeerIDToServer(peerID, role, action) {
 }
 async function getDistanceFromServer(myID, otherID) {
     try {
-        const response = await fetch('https://yourserver.com/api/getDistance', {
+        const response = await fetch('https://omeetlyserver.onrender.com/api/getDistance', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
