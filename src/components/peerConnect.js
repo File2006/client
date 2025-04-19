@@ -219,7 +219,7 @@ async function closeCall(){
         await sendPeerIDToServer(callerID.value, "stopIdle", "change")
         stopRequested = false;
     }
-    if (rejectCall){
+    else if (rejectCall){
         await sendPeerIDToServer(callerID.value, "searching", "change")
         rejectCall = false;
         await handlePeerConnection()
