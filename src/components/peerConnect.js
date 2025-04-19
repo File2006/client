@@ -60,14 +60,14 @@ async function sendPeerIDToServer(peerID, role, action) {
         console.error('Error sending peer ID:', error);
     }
 }
-async function getDistanceFromServer(myID, otherID) {
+async function getDistanceFromServer(callerID, destID) {
     try {
         const response = await fetch('https://omeetlyserver.onrender.com/api/getDistance', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ myID, otherID })
+            body: JSON.stringify({ callerID, destID })
         });
 
         const data = await response.json();
@@ -165,7 +165,7 @@ async function generateID(peers){
     let attempts = 0;
     do {
         candidate = peers[Math.floor(Math.random() * peers.length)];
-        distance = await getDistanceFromServer(callerID.value,candidate.id);
+        distance = await getDistanceFromServer(callerID.value,candidate.peerID);
         console.log(distance)
         attempts++;
         if (attempts > 10) {
@@ -189,7 +189,7 @@ peer.on('call', function(call) {
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
     console.log(targetDistance)
-    distance = getDistanceFromServer(callerID,call.peer)
+    distance = getDistanceFromServer(callerID.value,call.peer)
     console.log(distance);
     if (distance>targetDistance) {
         console.log("Refusing call, too far.")
