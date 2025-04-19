@@ -126,12 +126,7 @@ export async function handlePeerConnection() {
             if (activeCall){
                 return;
             }
-            try{
-                await peerConnect(destID, localStream);
-            } catch (error) {
-                console.error('Error connecting peer connection:', error);
-                await sendPeerIDToServer(destID,"",false);
-            }
+            await peerConnect(destID, localStream);
         } else {
             console.warn('No valid peer ID available for connection.');
             await sendPeerIDToServer(callerID.value,"searching", true);
@@ -215,6 +210,12 @@ peer.on('call', function(call) {
         }
         stopRequested = false;
     });
+    activeCall.on('error', async (err) => {
+        console.error("Call failed:", err);
+        activeCall = null;
+        await sendPeerIDToServer(callerID.value, "", false);
+    });
+
 });
 
 export async function stopConnection() {
