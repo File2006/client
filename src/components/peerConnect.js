@@ -68,7 +68,7 @@ async function sendPeerIDToServer(peerID, role, action) {
     }
     try {
         if (action === "add"){
-            await fetch('/api/registerPeer', {
+            await fetch('https://omeetlyserver.onrender.com/api/registerPeer', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ async function sendPeerIDToServer(peerID, role, action) {
             });
         }
         if (action === "change"){
-            await fetch('/api/updatePeerRole', {
+            await fetch('https://omeetlyserver.onrender.com/api/updatePeerRole', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ async function sendPeerIDToServer(peerID, role, action) {
             });
         }
         if (action === "delete"){
-            await fetch('/api/destroyPeer', {
+            await fetch('https://omeetlyserver.onrender.com/api/destroyPeer', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ peer.on('open', async function(id) {
 
 async function getDistanceFromServer(callerID, destID) {
     try {
-        const response = await fetch('/api/getDistance', {
+        const response = await fetch('https://omeetlyserver.onrender.com/api/getDistance', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ async function getDistanceFromServer(callerID, destID) {
 
 async function fetchPeerIDs() {
     try {
-        const response = await fetch('/api/getPeers');
+        const response = await fetch('https://omeetlyserver.onrender.com/api/getPeers');
         const data = await response.json();
         return data.peers;
     } catch (error) {
