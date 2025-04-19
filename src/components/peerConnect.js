@@ -210,12 +210,6 @@ peer.on('call', function(call) {
         }
         stopRequested = false;
     });
-    activeCall.on('error', async (err) => {
-        console.error("Call failed:", err);
-        activeCall = null;
-        await sendPeerIDToServer(callerID.value, "", false);
-    });
-
 });
 
 export async function stopConnection() {
@@ -249,9 +243,16 @@ async function peerConnect(destID, localStream) {
             stopRequested = false;
         }
     });
+    activeCall.on('error', async (err) => {
+        console.error("Call failed:", err);
+        activeCall = null;
+        await sendPeerIDToServer(destID, "", false);
+        await sendPeerIDToServer(callerID.value, "searching", true);
+        await handlePeerConnection()
+    });
 }
 
-window.addEventListener('beforeunload', (event) => {
+window.addEventListener('beforeunload', () => {
     if (activeCall) {
         activeCall.close();
         activeCall = null;
