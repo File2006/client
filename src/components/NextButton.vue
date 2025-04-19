@@ -14,7 +14,6 @@ import {handlePeerConnection} from "@/components/peerConnect.js";
   border: none;
   cursor: pointer;
   width: 100%;
-  border-radius: 1vw;
   height: 100%;
   padding: 0;
   text-align: center;

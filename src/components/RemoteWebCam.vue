@@ -92,7 +92,7 @@ video {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 2vw;
   z-index: 1;
 }
 </style>

@@ -29,7 +29,8 @@ const store = useComponentRefsStore()
   grid-template-rows: 0.1fr 1fr;
 }
 .distance-label {
-  background: linear-gradient(to bottom, #fff9c4, #ffe082);
+  background: linear-gradient(to bottom, #00AEEF, #0077B6);
+  color: white;
   display: flex;
   justify-content: space-between;
   height: 100%;
@@ -41,18 +42,17 @@ const store = useComponentRefsStore()
   width: 100%;
   height: 100%;
   background: #d3d3d3;
-  border-radius: 1vw;
   outline: none;
   transition: background 0.3s;
   margin: 0;
 }
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  border-radius: 1rem;
+  border-radius: 2vw;
   appearance: none;
   width: 1.5vw;
   height: 5vw;
-  background: linear-gradient(to bottom, #fff9c4, #ffe082);
+  background: linear-gradient(to bottom, #00AEEF, #0077B6);
   cursor: pointer;
   border: none;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);

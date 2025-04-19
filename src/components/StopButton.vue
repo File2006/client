@@ -18,7 +18,6 @@ import {stopConnection} from "@/components/peerConnect.js";
   width: 100%;
   height: 100%;
   padding: 0;
-  border-radius: 1vw;
   text-align: center;
   transition: background 0.3s ease, transform 0.1s ease;
 }

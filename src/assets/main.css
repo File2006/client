@@ -69,6 +69,9 @@ html,body{
         height: 10vw !important;
         width: 2.5vw !important;
     }
+    .overlay{
+        font-size: 4vw !important;
+    }
     video {
         height: 50vh !important;
     }
