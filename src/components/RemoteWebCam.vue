@@ -73,8 +73,8 @@ onBeforeUnmount(() => {
 <style scoped>
 .video-container {
   position: relative;
-  width: 100%; /* or 100% / whatever size you want */
-  background: white; /* fallback background */
+  width: 100%;
+  background: white;
 }
 video {
   width: 100%;
@@ -92,7 +92,8 @@ video {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2vw;
+  font-size: 1.8vw;
+  font-family: 'Kanit', sans-serif;
   z-index: 1;
 }
 </style>

@@ -1,3 +1,4 @@
+
 html,body{
     margin: 0;
     width: 100%;
@@ -32,7 +33,7 @@ html,body{
 #app{
     display: grid;
     grid-template-rows: 0.1fr 1fr 0.1fr;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.00009fr 1fr;
     grid-template-areas:
          "header header"
          "video1 video2"
@@ -70,7 +71,7 @@ html,body{
         width: 2.5vw !important;
     }
     .overlay{
-        font-size: 4vw !important;
+        font-size: 3.8vw !important;
     }
     video {
         height: 50vh !important;

@@ -11,8 +11,10 @@ import {stopConnection} from "@/components/peerConnect.js";
 .stop-button {
   background: linear-gradient(to bottom, #e36b6b, #913a3a);
   color: white;
+  font-family: 'Kanit', sans-serif;
   font-size: 2vw;
-  font-weight: bold;
+  font-weight: 400;
+  font-style: normal;
   border: none;
   cursor: pointer;
   width: 100%;

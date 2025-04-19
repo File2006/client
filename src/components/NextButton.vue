@@ -10,7 +10,7 @@ import {handlePeerConnection} from "@/components/peerConnect.js";
   background: linear-gradient(to bottom, #6bc38e, #3a915c);
   color: white;
   font-size: 2vw;
-  font-weight: bold;
+  font-family: 'Kanit', sans-serif;
   border: none;
   cursor: pointer;
   width: 100%;

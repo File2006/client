@@ -29,13 +29,15 @@ const store = useComponentRefsStore()
   grid-template-rows: 0.1fr 1fr;
 }
 .distance-label {
+  padding-left: 10px;
+  padding-right: 10px;
   background: linear-gradient(to bottom, #00AEEF, #0077B6);
   color: white;
   display: flex;
   justify-content: space-between;
   height: 100%;
   font-size: 2vw;
-  font-weight: bold;
+  font-family: 'Kanit', sans-serif;
 }
 .slider {
   -webkit-appearance: none;
