@@ -2,7 +2,6 @@ import {Peer} from "https://esm.sh/peerjs@1.5.4?bundle-deps";
 import {getLocalStream} from "@/components/localStream.js";
 import {ref} from "vue";
 import { useComponentRefsStore } from './store.js'
-import {send} from "vite";
 let callerID = ref(null);
 let activeCall = null;
 let localStream = null;
@@ -252,7 +251,7 @@ async function peerConnect(destID, localStream) {
     });
 }
 
-window.addEventListener('beforeunload', (event) => {
+window.addEventListener('beforeunload', () => {
     if (activeCall) {
         activeCall.close();
         activeCall = null;
