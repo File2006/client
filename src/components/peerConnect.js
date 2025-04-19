@@ -218,6 +218,7 @@ peer.on('call', async function(call) {
     const targetDistance = store.targetDistance
     console.log(targetDistance)
     distance = await getDistanceFromServer(callerID.value,call.peer)
+    await sendPeerIDToServer(callerID.value,"calling", "change");
     console.log(distance);
     if (distance>targetDistance) {
         console.log("Refusing call, too far.")
@@ -227,7 +228,6 @@ peer.on('call', async function(call) {
     call.answer(localStream);
     activeCall = call;
     activeCall.on('stream', async function(stream) {
-        await sendPeerIDToServer(callerID.value,"calling", "change");
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
     activeCall.on('close', async () => {
