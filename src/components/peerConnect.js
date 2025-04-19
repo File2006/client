@@ -36,13 +36,22 @@ async function sendPeerIDToServer(peerID, role, action) {
         console.error("Geolocation error:", error);
     }
     try {
-        if (action === true){
+        if (action === "add"){
             response = await fetch('https://omeetlyserver.onrender.com/api/registerPeer', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ peerID, longitude, latitude, role})
+            });
+        }
+        if (action === "change"){
+            response = await fetch('https://omeetlyserver.onrender.com/api/updatePeerRole', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ peerID, role})
             });
         }
         else{
@@ -60,14 +69,14 @@ async function sendPeerIDToServer(peerID, role, action) {
         console.error('Error sending peer ID:', error);
     }
 }
-async function getDistanceFromServer(myID, otherID) {
+async function getDistanceFromServer(callerID, destID) {
     try {
         const response = await fetch('https://omeetlyserver.onrender.com/api/getDistance', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ myID, otherID })
+            body: JSON.stringify({ callerID, destID })
         });
 
         const data = await response.json();
@@ -125,11 +134,7 @@ export async function handlePeerConnection() {
             activeCall.close();
             activeCall = null;
         }
-        if (rejectCall) {
-            await sendPeerIDToServer(callerID.value, "", true);
-            rejectCall = false;
-        }
-        await sendPeerIDToServer(callerID.value,"", false);
+        await sendPeerIDToServer(callerID.value,"calling", "change");
         const peerIDs = await fetchPeerIDs();
         const destID = await generateID(peerIDs);
         if (destID) {
@@ -165,14 +170,14 @@ async function generateID(peers){
     let attempts = 0;
     do {
         candidate = peers[Math.floor(Math.random() * peers.length)];
-        distance = await getDistanceFromServer(callerID.value,candidate.id);
+        distance = await getDistanceFromServer(callerID.value,candidate.peerID);
         console.log(distance)
         attempts++;
         if (attempts > 10) {
             console.warn("Couldn't find a suitable peer after 10 tries.");
             return null;
         }
-    } while (candidate.peerID === callerID.value || candidate.role === "idle" || candidate.role === "stopIdle" ||distance > targetDistance);
+    } while (candidate.peerID === callerID.value || candidate.role === "idle" || candidate.role === "stopIdle" || candidate.role === "calling" || distance > targetDistance);
     console.log(candidate.peerID);
     return candidate.peerID;
 }
@@ -189,7 +194,7 @@ peer.on('call', function(call) {
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
     console.log(targetDistance)
-    distance = getDistanceFromServer(callerID,call.peer)
+    distance = getDistanceFromServer(callerID.value,call.peer)
     console.log(distance);
     if (distance>targetDistance) {
         console.log("Refusing call, too far.")
@@ -199,7 +204,7 @@ peer.on('call', function(call) {
     call.answer(localStream);
     activeCall = call;
     activeCall.on('stream', async function(stream) {
-        await sendPeerIDToServer(callerID.value,"", false);
+        await sendPeerIDToServer(callerID.value,"calling", "change");
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
     activeCall.on('close', async () => {
@@ -209,13 +214,18 @@ peer.on('call', function(call) {
 async function closeCall(){
     console.log('Call closed');
     activeCall = null;
-    if (!stopRequested){
+    if (stopRequested){
+        await sendPeerIDToServer(callerID.value, "stopIdle", true)
+        stopRequested = false;
+    }
+    if (rejectCall){
         await sendPeerIDToServer(callerID.value, "searching", true)
+        rejectCall = false;
         await handlePeerConnection()
     }
     else{
-        await sendPeerIDToServer(callerID.value, "stopIdle", true)
-        stopRequested = false;
+        await sendPeerIDToServer(callerID.value, "searching", true)
+        await handlePeerConnection()
     }
 }
 
@@ -233,7 +243,7 @@ async function peerConnect(destID, localStream) {
     activeCall = peer.call(destID, localStream);
     let streamTimeout = setTimeout(async () => {
         console.warn("No stream received — assuming remote peer is unresponsive.");
-        await sendPeerIDToServer(destID, "", false);
+        await sendPeerIDToServer(destID, "", "delete");
         await sendPeerIDToServer(callerID.value, "searching", true);
         await handlePeerConnection()
     }, 2000);
