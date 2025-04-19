@@ -107,7 +107,6 @@ peer.on('open', async function(id) {
         await initLocalStream();
         callerID = id;
         localStorage.setItem('peerID', id);
-        console.log('My peer ID is: ' + id);
         await sendPeerIDToServer(id, "idle", "add");
     } catch (error) {
         console.error('Error during peer connection setup:', error);
@@ -273,7 +272,6 @@ peer.on('call', async function(call) {
         }
         const store = useComponentRefsStore();
         const targetDistance = store.targetDistance;
-        console.log(targetDistance);
         let distance;
         try {
             distance = await getDistanceFromServer(callerID, call.peer);
