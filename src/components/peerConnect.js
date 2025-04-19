@@ -125,9 +125,10 @@ export async function handlePeerConnection() {
         }
         await sendPeerIDToServer(callerID.value,"", false);
         const peerIDs = await fetchPeerIDs();
+        console.log(peerIDs);
         const destID = await generateID(peerIDs);
+        console.log(destID);
         if (destID) {
-            console.log(localStream);
             if (activeCall){
                 return;
             }
@@ -170,7 +171,7 @@ async function generateID(peers){
             console.warn("Couldn't find a suitable peer after 10 tries.");
             return null;
         }
-    } while (candidate.peerID === callerID.value || candidate.role === "idle" || candidate.role === "StopIdle" ||distance > targetDistance);
+    } while (candidate.peerID === callerID.value || candidate.role === "idle" || candidate.role === "stopIdle" ||distance > targetDistance);
     console.log(candidate.peerID);
     return candidate.peerID;
 }
@@ -212,9 +213,9 @@ peer.on('call', function(call) {
             await handlePeerConnection()
         }
         else{
-            await sendPeerIDToServer(callerID.value, "StopIdle", true)
+            await sendPeerIDToServer(callerID.value, "stopIdle", true)
+            stopRequested = false;
         }
-        stopRequested = false;
     });
 });
 
@@ -223,7 +224,7 @@ export async function stopConnection() {
     if (activeCall) {
         activeCall.close();
     }
-    await sendPeerIDToServer(callerID.value, "StopIdle", true);
+    await sendPeerIDToServer(callerID.value, "stopIdle", true);
     stopRequested = false;
 }
 
@@ -252,7 +253,7 @@ async function peerConnect(destID, localStream) {
             await sendPeerIDToServer(callerID.value, "searching", true);
             await handlePeerConnection();
         } else {
-            await sendPeerIDToServer(callerID.value, "StopIdle", true);
+            await sendPeerIDToServer(callerID.value, "stopIdle", true);
             stopRequested = false;
         }
     });
