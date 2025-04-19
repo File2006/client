@@ -9,6 +9,7 @@ let latitude = null;
 let longitude = null;
 let stopRequested = false;
 let rejectCall = false;
+let lookingError = false;
 
 async function initLocalStream() {
     if (!localStream) {
@@ -63,6 +64,9 @@ async function sendPeerIDToServer(peerID, role, action) {
                 },
                 body: JSON.stringify({ peerID })
             });
+        }
+        if (!lookingError){
+            window.dispatchEvent(new CustomEvent("update-role", { detail: role }));
         }
         const data = await response.json();
         console.log('Server Response:', data);
@@ -138,15 +142,31 @@ export async function handlePeerConnection() {
         await sendPeerIDToServer(callerID.value,"calling", "change");
         const peerIDs = await fetchPeerIDs();
         const destID = await generateID(peerIDs);
-        if (destID) {
-            if (activeCall){
-                return;
-            }
-            await peerConnect(destID, localStream);
+        if (destID === 'no-users-online') {
+            console.warn('No users are online.');
+            lookingError = true;
+            window.dispatchEvent(new CustomEvent("no-peers", {
+                detail: "No users are currently available."
+            }));
+        } else if (destID === 'no-available-users') {
+            console.warn('No available users to connect to.');
+            lookingError = true;
+            window.dispatchEvent(new CustomEvent("no-peers", {
+                detail: "No users are available for a connection."
+            }));
+        } else if (destID === 'no-users-in-distance') {
+            console.warn("No users found within your distance preference.");
+            lookingError = true;
+            window.dispatchEvent(new CustomEvent("no-peers", {
+                detail: "No users found within your distance preference."
+            }));
         } else {
-            console.warn('No valid peer ID available for connection.');
-            await sendPeerIDToServer(callerID.value,"searching", "change");
+            if (activeCall) return;
+            lookingError = false;
+            await peerConnect(destID, localStream);
+            return;
         }
+        await sendPeerIDToServer(callerID.value, "searching", "change");
     } catch (error) {
         console.error('Error during peer connection:', error);
     }
@@ -164,23 +184,26 @@ async function generateID(peers){
     const targetDistance = store.targetDistance
     if (peers.length < 1) {
         console.warn('No other peers available to connect to.');
-        return null;
+        return 'no-users-online';
     }
-    let candidate;
-    let distance;
-    let attempts = 0;
-    do {
-        candidate = peers[Math.floor(Math.random() * peers.length)];
-        distance = await getDistanceFromServer(callerID.value,candidate.peerID);
-        console.log(distance)
-        attempts++;
-        if (attempts > 10) {
-            console.warn("Couldn't find a suitable peer after 10 tries.");
-            return null;
+    const searchablePeers = peers.filter(p => p.role === "searching" && p.peerID !== callerID.value);
+    if (searchablePeers.length === 0) {
+        console.warn('No available users to connect to.');
+        return 'no-available-users';
+    }
+    const suitablePeers = [];
+    for (const peer of searchablePeers) {
+        const distance = await getDistanceFromServer(callerID.value, peer.peerID);
+        if (distance <= targetDistance) {
+            suitablePeers.push(peer.peerID);
         }
-    } while (candidate.peerID === callerID.value || candidate.role === "idle" || candidate.role === "stopIdle" || candidate.role === "calling" || distance > targetDistance);
-    console.log(candidate.peerID);
-    return candidate.peerID;
+    }
+    if (suitablePeers.length === 0) {
+        console.warn("No suitable peer found within target distance.");
+        return 'no-users-in-distance';
+    }
+    const randomIndex = Math.floor(Math.random() * suitablePeers.length);
+    return suitablePeers[randomIndex];
 }
 
 peer.on('call', function(call) {
@@ -213,6 +236,7 @@ peer.on('call', function(call) {
 });
 async function closeCall(){
     console.log('Call closed');
+    window.dispatchEvent(new CustomEvent('call-ended'));
     activeCall = null;
     if (stopRequested){
         await sendPeerIDToServer(callerID.value, "stopIdle", "change")
@@ -231,6 +255,7 @@ async function closeCall(){
 
 export async function stopConnection() {
     stopRequested = true;
+    lookingError = false;
     if (activeCall) {
         activeCall.close();
     }
