@@ -46,6 +46,7 @@ async function sendPeerIDToServer(peerID, role, action) {
             });
         }
         if (action === "change"){
+            console.log(peerID,role)
             response = await fetch('https://omeetlyserver.onrender.com/api/updatePeerRole', {
                 method: 'POST',
                 headers: {
@@ -144,7 +145,7 @@ export async function handlePeerConnection() {
             await peerConnect(destID, localStream);
         } else {
             console.warn('No valid peer ID available for connection.');
-            await sendPeerIDToServer(callerID.value,"searching", true);
+            await sendPeerIDToServer(callerID.value,"searching", "change");
         }
     } catch (error) {
         console.error('Error during peer connection:', error);
@@ -155,7 +156,7 @@ peer.on('open', async function(id) {
     callerID.value = id;
     localStorage.setItem('peerID', id);
     console.log('My peer ID is: ' + id);
-    await sendPeerIDToServer(id, "idle", true);
+    await sendPeerIDToServer(id, "idle", "add");
 });
 
 async function generateID(peers){
@@ -215,16 +216,16 @@ async function closeCall(){
     console.log('Call closed');
     activeCall = null;
     if (stopRequested){
-        await sendPeerIDToServer(callerID.value, "stopIdle", true)
+        await sendPeerIDToServer(callerID.value, "stopIdle", "add")
         stopRequested = false;
     }
     if (rejectCall){
-        await sendPeerIDToServer(callerID.value, "searching", true)
+        await sendPeerIDToServer(callerID.value, "searching", "change")
         rejectCall = false;
         await handlePeerConnection()
     }
     else{
-        await sendPeerIDToServer(callerID.value, "searching", true)
+        await sendPeerIDToServer(callerID.value, "searching", "change")
         await handlePeerConnection()
     }
 }
@@ -234,7 +235,7 @@ export async function stopConnection() {
     if (activeCall) {
         activeCall.close();
     }
-    await sendPeerIDToServer(callerID.value, "stopIdle", true);
+    await sendPeerIDToServer(callerID.value, "stopIdle", "add");
     stopRequested = false;
 }
 
@@ -244,7 +245,7 @@ async function peerConnect(destID, localStream) {
     let streamTimeout = setTimeout(async () => {
         console.warn("No stream received — assuming remote peer is unresponsive.");
         await sendPeerIDToServer(destID, "", "delete");
-        await sendPeerIDToServer(callerID.value, "searching", true);
+        await sendPeerIDToServer(callerID.value, "searching", "change");
         await handlePeerConnection()
     }, 2000);
     activeCall.on('stream', function(stream) {
