@@ -243,7 +243,7 @@ async function peerConnect(destID, localStream) {
     activeCall = peer.call(destID, localStream);
     let streamTimeout = setTimeout(async () => {
         console.warn("No stream received — assuming remote peer is unresponsive.");
-        await sendPeerIDToServer(destID, "", "delete");
+        await sendPeerIDToServer(destID, "calling", "change");
         await sendPeerIDToServer(callerID.value, "searching", "change");
         await handlePeerConnection()
     }, 2000);
