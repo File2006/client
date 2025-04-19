@@ -16,19 +16,14 @@ onMounted(async () => {
       console.error("Failed to access webcam:", error);
     }
   })
-
 </script>
 
 <template>
   <video ref="localVideo" autoplay muted playsinline></video>
 </template>
-,
+
 <style scoped>
 video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   transform: scaleX(-1);
-  aspect-ratio: 16 / 9;
 }
 </style>

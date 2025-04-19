@@ -7,7 +7,7 @@ const overlayMessage = ref("Press next to start!");
 function setRemoteStream(stream) {
   if (remoteVideo.value) {
     overlayMessage.value = "";
-    remoteVideo.value.srcObject = stream;// Hide when stream is active
+    remoteVideo.value.srcObject = stream;
   }
 }
 
@@ -24,6 +24,7 @@ function handleCallEnded() {
 function handleRemoteStream(event) {
   setRemoteStream(event.detail);
 }
+
 function handleNoPeers(event) {
   overlayMessage.value = event.detail;
 }
@@ -73,28 +74,18 @@ onBeforeUnmount(() => {
 <style scoped>
 .video-container {
   position: relative;
-  width: 100%;
-  background: white;
-}
-video {
-  width: 100%;
-  object-fit: cover;
-  height: 100%;
-  aspect-ratio: 16 / 9;
 }
 .overlay {
   position: absolute;
   top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   color: white;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: gray;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.8vw;
   font-family: 'Kanit', sans-serif;
-  z-index: 1;
 }
 </style>

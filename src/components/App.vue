@@ -5,6 +5,7 @@ import NextButton from "@/components/NextButton.vue";
 import StopButton from "@/components/StopButton.vue";
 import DistanceSlider from "@/components/DistanceSlider.vue";
 </script>
+
 <template>
     <div class="top-bar">
       <img class ="icon" src="./icons/omeetly_text_final.png" alt="Omeetly_logo">
@@ -17,6 +18,7 @@ import DistanceSlider from "@/components/DistanceSlider.vue";
       <distance-slider class="distance-slider"></distance-slider>
     </div>
  </template>
+
  <style>
 @import "./../assets/main.css";
  </style>

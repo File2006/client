@@ -1,7 +1,5 @@
-
 html,body{
     margin: 0;
-    width: 100%;
     height: 100%;
 }
 .top-bar{
@@ -10,13 +8,12 @@ html,body{
     justify-content: center;
     align-items: center;
     grid-area: header;
-    text-align: center;
-    height: 100%;
 }
 .icon{
     width: 15%;
     object-fit: contain;
     padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
 }
 .local-web-cam{
     grid-area: video1;
@@ -27,8 +24,13 @@ html,body{
 .buttons-div{
     display:grid;
     grid-area: buttons;
-    width: 100%;
     grid-template-columns: 1fr 1fr 1fr;
+}
+video {
+    width: 100%;
+    object-fit: cover;
+    height: 100%;
+    aspect-ratio: 16 / 9;
 }
 #app{
     display: grid;
@@ -38,7 +40,6 @@ html,body{
          "header header"
          "video1 video2"
          "buttons buttons";
-    width: 100%;
     height: 100%;
 }
 @media (max-width: 768px) {
@@ -50,7 +51,6 @@ html,body{
             "buttons"
             "slider";
         height: 100vh;
-        overflow-y: auto;
     }
     .buttons-div {
         grid-template-columns: 1fr;
@@ -74,8 +74,8 @@ html,body{
         font-size: 3.8vw !important;
     }
     video {
-        height: 50vh !important;
-        aspect-ratio: 9 / 16 !important;
+        height: 50vh;
+        aspect-ratio: 9 / 16;
     }
     .icon {
         display:none

@@ -1,6 +1,5 @@
 <script setup>
 import { useComponentRefsStore } from './store.js'
-
 const store = useComponentRefsStore()
 </script>
 
@@ -25,8 +24,6 @@ const store = useComponentRefsStore()
 <style scoped>
 .distance-slider {
   display:grid;
-  width: 100%;
-  grid-template-rows: 0.1fr 1fr;
 }
 .distance-label {
   padding-left: 10px;
@@ -35,30 +32,24 @@ const store = useComponentRefsStore()
   color: white;
   display: flex;
   justify-content: space-between;
-  height: 100%;
   font-size: 2vw;
   font-family: 'Kanit', sans-serif;
 }
 .slider {
+  appearance: none;
   -webkit-appearance: none;
-  width: 100%;
-  height: 100%;
+  -moz-appearance: none;
   background: #d3d3d3;
-  outline: none;
-  transition: background 0.3s;
   margin: 0;
 }
+
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   border-radius: 2vw;
-  appearance: none;
   width: 1.5vw;
   height: 5vw;
   background: linear-gradient(to bottom, #00AEEF, #0077B6);
   cursor: pointer;
-  border: none;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
-  transition: transform 0.1s ease;
   min-height: 70px;
 }
 </style>
