@@ -314,7 +314,7 @@ export async function stopConnection() {
     stopRequested = false;
 }
 
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', async () => {
     if (activeCall) {
         activeCall.close();
         activeCall = null;
@@ -323,14 +323,13 @@ window.addEventListener('beforeunload', () => {
         peer.destroy();
     }
     if (callerID) {
-        navigator.sendBeacon('/api/destroyPeer', JSON.stringify({ peerID: callerID }));
+        await sendPeerIDToServer(callerID, "", "delete");
         localStorage.removeItem('peerID');
     }
 });
-
-peer.on('close', () => {
+peer.on('close', async() => {
     console.log('Peer connection closed');
-    navigator.sendBeacon('/api/destroyPeer', JSON.stringify({ peerID: callerID }));
+    await sendPeerIDToServer(callerID, "", "delete");
     localStorage.removeItem('peerID');
     callerID = null;
 });
