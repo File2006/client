@@ -29,5 +29,6 @@ video {
   height: 100%;
   object-fit: cover;
   transform: scaleX(-1);
+  aspect-ratio: 16 / 9;
 }
 </style>

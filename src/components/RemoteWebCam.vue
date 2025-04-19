@@ -80,6 +80,7 @@ video {
   width: 100%;
   object-fit: cover;
   height: 100%;
+  aspect-ratio: 16 / 9;
 }
 .overlay {
   position: absolute;

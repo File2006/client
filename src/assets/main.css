@@ -5,7 +5,7 @@ html,body{
     height: 100%;
 }
 .top-bar{
-    background-color: #009fe3;
+    background: linear-gradient(to right, #0077B6, #00AEEF 50%, #0077B6);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -75,6 +75,7 @@ html,body{
     }
     video {
         height: 50vh !important;
+        aspect-ratio: 9 / 16 !important;
     }
     .icon {
         display:none
