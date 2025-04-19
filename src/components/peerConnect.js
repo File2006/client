@@ -21,18 +21,6 @@ async function initLocalStream() {
     }
 }
 
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-}
-
 async function sendPeerIDToServer(peerID, role, action) {
     let response;
     const getLocation = () => {
@@ -70,6 +58,24 @@ async function sendPeerIDToServer(peerID, role, action) {
         console.log('Server Response:', data);
     } catch (error) {
         console.error('Error sending peer ID:', error);
+    }
+}
+async function getDistanceFromServer(myID, otherID) {
+    try {
+        const response = await fetch('https://yourserver.com/api/getDistance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ myID, otherID })
+        });
+
+        const data = await response.json();
+        console.log('Distance from server:', data.distance);
+        return data.distance;
+    } catch (error) {
+        console.error('Failed to fetch distance:', error);
+        return null;
     }
 }
 let savedPeerID = localStorage.getItem('peerID');
@@ -125,9 +131,7 @@ export async function handlePeerConnection() {
         }
         await sendPeerIDToServer(callerID.value,"", false);
         const peerIDs = await fetchPeerIDs();
-        console.log(peerIDs);
         const destID = await generateID(peerIDs);
-        console.log(destID);
         if (destID) {
             if (activeCall){
                 return;
@@ -152,8 +156,6 @@ peer.on('open', async function(id) {
 async function generateID(peers){
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
-    console.log(targetDistance)
-    console.log(peers);
     if (peers.length < 1) {
         console.warn('No other peers available to connect to.');
         return null;
@@ -163,8 +165,7 @@ async function generateID(peers){
     let attempts = 0;
     do {
         candidate = peers[Math.floor(Math.random() * peers.length)];
-        distance = getDistance(latitude,longitude,candidate.latitude,candidate.longitude);
-        console.log(candidate.latitude, candidate.longitude);
+        distance = await getDistanceFromServer(callerID.value,candidate.id);
         console.log(distance)
         attempts++;
         if (attempts > 10) {
@@ -183,16 +184,12 @@ peer.on('call', function(call) {
         activeCall.close()
         return;
     }
-    const remoteLatitude = call.metadata?.latitude;
-    const remoteLongitude = call.metadata?.longitude;
 
-    console.log("My location:", latitude, longitude);
-    console.log("Caller location:", remoteLatitude, remoteLongitude);
     let distance;
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
     console.log(targetDistance)
-    distance = getDistance(latitude,longitude,remoteLatitude,remoteLongitude);
+    distance = getDistanceFromServer(callerID,call.peer)
     console.log(distance);
     if (distance>targetDistance) {
         console.log("Refusing call, too far.")
@@ -206,18 +203,21 @@ peer.on('call', function(call) {
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
     activeCall.on('close', async () => {
-        console.log('Call closed');
-        activeCall = null;
-        if (!stopRequested){
-            await sendPeerIDToServer(callerID.value, "searching", true)
-            await handlePeerConnection()
-        }
-        else{
-            await sendPeerIDToServer(callerID.value, "stopIdle", true)
-            stopRequested = false;
-        }
+        await closeCall()
     });
 });
+async function closeCall(){
+    console.log('Call closed');
+    activeCall = null;
+    if (!stopRequested){
+        await sendPeerIDToServer(callerID.value, "searching", true)
+        await handlePeerConnection()
+    }
+    else{
+        await sendPeerIDToServer(callerID.value, "stopIdle", true)
+        stopRequested = false;
+    }
+}
 
 export async function stopConnection() {
     stopRequested = true;
@@ -230,12 +230,7 @@ export async function stopConnection() {
 
 async function peerConnect(destID, localStream) {
     console.log(localStream)
-    activeCall = peer.call(destID, localStream, {
-        metadata: {
-            latitude: latitude,
-            longitude: longitude
-        }
-    });
+    activeCall = peer.call(destID, localStream);
     let streamTimeout = setTimeout(async () => {
         console.warn("No stream received — assuming remote peer is unresponsive.");
         await sendPeerIDToServer(destID, "", false);
@@ -247,15 +242,7 @@ async function peerConnect(destID, localStream) {
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
     activeCall.on('close', async () => {
-        console.log('Call closed');
-        activeCall = null;
-        if (!stopRequested) {
-            await sendPeerIDToServer(callerID.value, "searching", true);
-            await handlePeerConnection();
-        } else {
-            await sendPeerIDToServer(callerID.value, "stopIdle", true);
-            stopRequested = false;
-        }
+        await closeCall()
     });
 }
 

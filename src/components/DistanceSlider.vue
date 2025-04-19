@@ -51,11 +51,12 @@ const store = useComponentRefsStore()
   border-radius: 1rem;
   appearance: none;
   width: 1.5vw;
-  height: 8vw;
+  height: 5vw;
   background: linear-gradient(to bottom, #fff9c4, #ffe082);
   cursor: pointer;
   border: none;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
   transition: transform 0.1s ease;
+  min-height: 70px;
 }
 </style>
