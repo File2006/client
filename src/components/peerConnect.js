@@ -8,6 +8,7 @@ let localStream = null;
 let latitude = null;
 let longitude = null;
 let stopRequested = false;
+let rejectcall = false;
 
 async function initLocalStream() {
     if (!localStream) {
@@ -118,6 +119,10 @@ export async function handlePeerConnection() {
             activeCall.close();
             activeCall = null;
         }
+        if (rejectcall) {
+            await sendPeerIDToServer(callerID.value, "", true);
+            rejectcall = false;
+        }
         await sendPeerIDToServer(callerID.value,"", false);
         const peerIDs = await fetchPeerIDs();
         const destID = await generateID(peerIDs);
@@ -161,7 +166,7 @@ async function generateID(peers){
         console.log(candidate.latitude, candidate.longitude);
         console.log(distance)
         attempts++;
-        if (attempts > 3) {
+        if (attempts > 10) {
             console.warn("Couldn't find a suitable peer after 10 tries.");
             return null;
         }
@@ -173,6 +178,7 @@ async function generateID(peers){
 peer.on('call', function(call) {
     if (activeCall) {
         console.log("Already in a call, rejecting new one.");
+        rejectcall = true;
         activeCall.close()
         return;
     }
