@@ -207,6 +207,7 @@ async function generateID(peers){
 }
 
 peer.on('call', async function(call) {
+    await sendPeerIDToServer(callerID.value,"calling", "change");
     if (activeCall) {
         console.log("Already in a call, rejecting new one.");
         rejectCall = true;
@@ -218,7 +219,6 @@ peer.on('call', async function(call) {
     const targetDistance = store.targetDistance
     console.log(targetDistance)
     distance = await getDistanceFromServer(callerID.value,call.peer)
-    await sendPeerIDToServer(callerID.value,"calling", "change");
     console.log(distance);
     if (distance>targetDistance) {
         console.log("Refusing call, too far.")
@@ -268,7 +268,6 @@ async function peerConnect(destID, localStream) {
     activeCall = peer.call(destID, localStream);
     let streamTimeout = setTimeout(async () => {
         console.warn("No stream received — assuming remote peer is unresponsive.");
-        await sendPeerIDToServer(destID, "calling", "change");
         await sendPeerIDToServer(callerID.value, "searching", "change");
         await handlePeerConnection()
     }, 2000);
