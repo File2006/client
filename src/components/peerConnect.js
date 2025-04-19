@@ -190,7 +190,6 @@ peer.on('call', function(call) {
         activeCall.close()
         return;
     }
-
     let distance;
     const store = useComponentRefsStore()
     const targetDistance = store.targetDistance
@@ -204,8 +203,8 @@ peer.on('call', function(call) {
     }
     call.answer(localStream);
     activeCall = call;
-    activeCall.on('stream', async function(stream) {
-        await sendPeerIDToServer(callerID.value,"calling", "change");
+    sendPeerIDToServer(callerID.value,"calling", "change");
+    activeCall.on('stream', function(stream) {
         window.dispatchEvent(new CustomEvent('remote-stream', { detail: stream }));
     });
     activeCall.on('close', async () => {
