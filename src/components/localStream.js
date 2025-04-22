@@ -1,5 +1,6 @@
 let localStream = null;
 
+// Získání videoaudio záznamu uživatele
 export async function getLocalStream() {
     if (!localStream) {
         try {

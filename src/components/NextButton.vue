@@ -3,6 +3,7 @@ import {handlePeerConnection} from "@/components/peerConnect.js";
 </script>
 
 <template>
+  <!-- Tlačítko next -->
 <input type="button" @click="handlePeerConnection()" class="next-button" value="Next" />
 </template>
 

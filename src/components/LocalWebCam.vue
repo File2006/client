@@ -3,6 +3,7 @@ import {ref, onMounted} from "vue";
 import { getLocalStream } from './localStream';
 const localVideo = ref(null);
 
+//Připevnění lokální webkamery
 onMounted(async () => {
   try{
     const localStream = await getLocalStream()

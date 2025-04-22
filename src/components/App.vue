@@ -7,9 +7,11 @@ import DistanceSlider from "@/components/DistanceSlider.vue";
 </script>
 
 <template>
+  <!-- Horní lišta s logem aplikace -->
     <div class="top-bar">
       <img class ="icon" src="./icons/omeetly_text_final.png" alt="Omeetly_logo">
     </div>
+  <!-- Komponenty aplikace -->
     <local-web-cam class="local-web-cam"></local-web-cam>
     <remote-web-cam class="remote-web-cam"></remote-web-cam>
     <div class="buttons-div">

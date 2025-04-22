@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './components/App.vue';
 
+//Vytvoření Vue aplikace a úložiště Pinia
 const app = createApp(App);
 const pinia = createPinia();
 

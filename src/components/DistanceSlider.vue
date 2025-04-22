@@ -4,6 +4,7 @@ const store = useComponentRefsStore()
 </script>
 
 <template>
+  <!-- Posuvník vzdálenosti -->
   <div class="distance-slider">
     <label for="distance" class="distance-label">
       <span>Distance:</span>

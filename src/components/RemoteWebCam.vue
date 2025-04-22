@@ -17,6 +17,7 @@ function resetRemoteStream() {
   }
 }
 
+//Funkce na měnění stavové obrazovky
 function handleCallEnded() {
   resetRemoteStream();
 }
@@ -49,6 +50,7 @@ function handleRoleUpdate(event) {
   }
 }
 
+//Naslouchače eventů pro změnění stavové obrazovky
 onMounted(() => {
   window.addEventListener("remote-stream", handleRemoteStream);
   window.addEventListener("call-ended", handleCallEnded);

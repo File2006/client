@@ -2,6 +2,7 @@ import {Peer} from "https://esm.sh/peerjs@1.5.4?bundle-deps";
 import {getLocalStream} from "@/components/localStream.js";
 import { useComponentRefsStore } from './store.js'
 
+// Globální proměnné pro správu hovoru a geolokace
 let callerID = null;
 let activeCall = null;
 let localStream = null;
@@ -13,8 +14,9 @@ let rejectCall = false;
 let lookingError = false;
 let savedPeerID = localStorage.getItem('peerID');
 
+// Inicializace PeerJS pro WebRTC komunikaci
 const peer = new Peer(savedPeerID || undefined, {
-    config:{
+    config: {
         iceServers: [
             {
                 urls: "stun:stun.relay.metered.ca:80",
@@ -43,6 +45,7 @@ const peer = new Peer(savedPeerID || undefined, {
     }
 });
 
+// Inicializuje lokální video/audio stream
 async function initLocalStream() {
     if (!localStream) {
         try {
@@ -53,6 +56,7 @@ async function initLocalStream() {
     }
 }
 
+// Odesílá PeerID a geolokační data na server pro registraci, změnu role nebo odstranění
 async function sendPeerIDToServer(peerID, role, action) {
     const getLocation = () => {
         return new Promise((resolve, reject) => {
@@ -67,25 +71,25 @@ async function sendPeerIDToServer(peerID, role, action) {
         console.error("Geolocation error:", error);
     }
     try {
-        if (action === "add"){
+        if (action === "add") {
             await fetch('https://omeetlyserver.onrender.com/api/registerPeer', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ peerID, longitude, latitude, role})
+                body: JSON.stringify({ peerID, longitude, latitude, role })
             });
         }
-        if (action === "change"){
+        if (action === "change") {
             await fetch('https://omeetlyserver.onrender.com/api/updatePeerRole', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ peerID, role})
+                body: JSON.stringify({ peerID, role })
             });
         }
-        if (action === "delete"){
+        if (action === "delete") {
             await fetch('https://omeetlyserver.onrender.com/api/destroyPeer', {
                 method: 'POST',
                 headers: {
@@ -94,7 +98,7 @@ async function sendPeerIDToServer(peerID, role, action) {
                 body: JSON.stringify({ peerID })
             });
         }
-        if (!lookingError){
+        if (!lookingError) {
             window.dispatchEvent(new CustomEvent("update-role", { detail: role }));
         }
     } catch (error) {
@@ -102,6 +106,7 @@ async function sendPeerIDToServer(peerID, role, action) {
     }
 }
 
+// Po otevření peer spojení inicializuje stream a registruje PeerID na serveru
 peer.on('open', async function(id) {
     try {
         await initLocalStream();
@@ -113,6 +118,7 @@ peer.on('open', async function(id) {
     }
 });
 
+// Získává vzdálenost mezi dvěma uživateli ze serveru
 async function getDistanceFromServer(callerID, destID) {
     try {
         const response = await fetch('https://omeetlyserver.onrender.com/api/getDistance', {
@@ -122,7 +128,6 @@ async function getDistanceFromServer(callerID, destID) {
             },
             body: JSON.stringify({ callerID, destID })
         });
-
         const data = await response.json();
         return data.distance;
     } catch (error) {
@@ -131,6 +136,7 @@ async function getDistanceFromServer(callerID, destID) {
     }
 }
 
+// Načítá seznam dostupných peerů ze serveru
 async function fetchPeerIDs() {
     try {
         const response = await fetch('https://omeetlyserver.onrender.com/api/getPeers');
@@ -142,9 +148,10 @@ async function fetchPeerIDs() {
     }
 }
 
-async function generateID(peers){
-    const store = useComponentRefsStore()
-    const targetDistance = store.targetDistance
+// Vybírá náhodného peerID z dostupných peerů v zadané vzdálenosti
+async function generateID(peers) {
+    const store = useComponentRefsStore();
+    const targetDistance = store.targetDistance;
     if (peers.length < 1) {
         return 'no-users-online';
     }
@@ -170,21 +177,19 @@ async function generateID(peers){
     return suitablePeers[randomIndex];
 }
 
-async function closeCall(){
+// Ukončuje aktivní hovor a aktualizuje stav na serveru
+async function closeCall() {
     try {
         window.dispatchEvent(new CustomEvent('call-ended'));
         activeCall = null;
-
         if (stopRequested) {
             await sendPeerIDToServer(callerID, "stopIdle", "change");
             stopRequested = false;
-        }
-        else if (rejectCall) {
+        } else if (rejectCall) {
             await sendPeerIDToServer(callerID, "searching", "change");
             rejectCall = false;
             await handlePeerConnection();
-        }
-        else {
+        } else {
             await sendPeerIDToServer(callerID, "searching", "change");
             await handlePeerConnection();
         }
@@ -193,13 +198,14 @@ async function closeCall(){
     }
 }
 
+// Spravuje připojení k peeru, volí cílového uživatele a iniciuje hovor
 export async function handlePeerConnection() {
     try {
         if (activeCall) {
             activeCall.close();
             activeCall = null;
         }
-        await sendPeerIDToServer(callerID,"calling", "change");
+        await sendPeerIDToServer(callerID, "calling", "change");
         const peerIDs = await fetchPeerIDs();
         const destID = await generateID(peerIDs);
         if (destID === 'no-users-online') {
@@ -207,20 +213,17 @@ export async function handlePeerConnection() {
             window.dispatchEvent(new CustomEvent("no-peers", {
                 detail: "No users are currently available."
             }));
-        }
-        else if (destID === 'no-available-users') {
+        } else if (destID === 'no-available-users') {
             lookingError = true;
             window.dispatchEvent(new CustomEvent("no-peers", {
                 detail: "No users are available for a connection."
             }));
-        }
-        else if (destID === 'no-users-in-distance') {
+        } else if (destID === 'no-users-in-distance') {
             lookingError = true;
             window.dispatchEvent(new CustomEvent("no-peers", {
                 detail: "No users found within your distance preference."
             }));
-        }
-        else {
+        } else {
             if (activeCall) return;
             lookingError = false;
             await peerConnect(destID, localStream);
@@ -232,6 +235,7 @@ export async function handlePeerConnection() {
     }
 }
 
+// Navazuje spojení s vybraným peerem a odesílá lokální stream
 async function peerConnect(destID, localStream) {
     try {
         activeCall = peer.call(destID, localStream);
@@ -261,6 +265,7 @@ async function peerConnect(destID, localStream) {
     }
 }
 
+// Zpracovává příchozí hovor a ověřuje vzdálenost před přijetím
 peer.on('call', async function(call) {
     try {
         await sendPeerIDToServer(callerID, "calling", "change");
@@ -301,6 +306,7 @@ peer.on('call', async function(call) {
     }
 });
 
+// Ukončuje spojení a aktualizuje stav na serveru
 export async function stopConnection() {
     stopRequested = true;
     lookingError = false;
@@ -312,6 +318,7 @@ export async function stopConnection() {
     stopRequested = false;
 }
 
+// Čistí spojení a odstraňuje PeerID při ukončení stránky
 window.addEventListener('beforeunload', async () => {
     if (activeCall) {
         activeCall.close();
@@ -325,7 +332,9 @@ window.addEventListener('beforeunload', async () => {
         localStorage.removeItem('peerID');
     }
 });
-peer.on('close', async() => {
+
+// Zpracovává uzavření peer spojení a odstraňuje PeerID
+peer.on('close', async () => {
     console.log('Peer connection closed');
     await sendPeerIDToServer(callerID, "", "delete");
     localStorage.removeItem('peerID');

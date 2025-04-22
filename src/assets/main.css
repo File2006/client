@@ -35,7 +35,7 @@ video {
 #app{
     display: grid;
     grid-template-rows: 0.1fr 1fr 0.1fr;
-    grid-template-columns: 1.00009fr 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-areas:
          "header header"
          "video1 video2"
